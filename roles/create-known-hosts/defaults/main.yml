@@ -1,0 +1,7 @@
+---
+
+ssh_known_hosts_command: "ssh-keyscan -T 10"
+ssh_known_hosts_file_default: "{{ ansible_env.HOME }}/.ssh/known_hosts"
+ssh_known_hosts_file: "{{ ssh_known_hosts_file_default }}"
+##/etc/ssh/ssh_known_hosts
+ssh_known_hosts: "{{ groups['all_linux'] }}"

@@ -1,0 +1,41 @@
+---
+# The variables file used by the playbooks in the all group.
+
+webmethods_install_dir: /opt/softwareag
+webmethods_install_major_version: 105
+webmethods_user: saguser
+webmethods_group: saguser
+webmethods_userid: 1100
+webmethods_groupid: 1100
+webmethods_internal_sshkey_pub: ~/id_rsa_webmethods.pub
+
+env_url_domain: clouddemo.saggov.com
+
+## default spm service name and envs
+webmethods_spm_servicename: sag1spm105
+webmethods_spm_service_env: {}
+
+## some default sysprep values
+sys_open_ports: []
+sysctl_config: {}
+limits_configs:
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nofile
+    value: 8000
+    comment: 'the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nofile
+    value: 8000
+    comment: 'the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nproc
+    value: 1000
+    comment: 'the max process limit'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nproc
+    value: 1000
+    comment: 'the max process limit'

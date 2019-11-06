@@ -1,0 +1,16 @@
+---
+
+webmethods_install_dir:
+service_exec_filepath:
+service_user: "{{ webmethods_user }}"
+service_name:
+service_type: forking
+
+product_name:
+command: 
+
+service_env_internaldatastore_defaults:
+  LimitNOFILE: "65536"
+  LimitNPROC: "16000"
+  LimitAS: "infinity"
+  LimitFSIZE: "infinity"

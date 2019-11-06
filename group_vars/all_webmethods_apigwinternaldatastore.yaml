@@ -1,0 +1,38 @@
+---
+
+# The variables file used by the playbooks in the all_linux group.
+
+sys_open_ports: ["8092/tcp","8093/tcp","9340/tcp"]
+
+limits_openfiles: "250000"
+limits_processes: "20000"
+
+sysctl_config:
+  vm.max_map_count: "262144"
+  fs.file-max: "250000"
+      
+limits_configs:
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nofile
+    value: 250000
+    comment: 'increase the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nofile
+    value: 250000
+    comment: 'increase the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nproc
+    value: 20000
+    comment: 'increase the max process limit'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nproc
+    value: 20000
+    comment: 'increase the max process limit'
+
+webmethods_spm_service_env:
+  LimitNOFILE: "250000"
+  LimitNPROC: "20000"

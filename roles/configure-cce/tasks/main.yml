@@ -1,0 +1,38 @@
+---
+
+  - name: Forcing the re-configuration of config {{ config_item }}
+    file:
+      path: "{{ status_success_filepath }}"
+      state: absent
+    when: configure_cce_force
+
+  - name: Check if CCE config was already done for config {{ config_item }}
+    stat: 
+      path: "{{ status_success_filepath }}"
+    register: stat_cceConfigAlreadyDone
+
+  - name: Prepare and configure CCE only if {{ status_success_filepath }} does not exist.
+    block:
+      - name: Run configure command for config item {{ config_item }}
+        command: "/bin/bash ./scripts/configure_ccserver.sh {{ cce_owner }} {{ config_item }}"
+        async: 1000
+        poll: 0
+        args:
+          chdir: "{{ cce_provisioning_path }}"
+          creates: "{{ status_success_filepath }}"
+        register: configure_ccserver_sleeper
+        
+      - name: Check status of configure command for config item {{ config_item }}
+        async_status:
+          jid: "{{ configure_ccserver_sleeper.ansible_job_id }}"
+        register: job_result
+        until: job_result.finished
+        retries: 100
+        delay: 10
+
+      - name: Copy command result to file {{ status_stdout_filepath }}
+        copy:
+          content: "{{ job_result.stdout }}"
+          dest: "{{ status_stdout_filepath }}"
+
+    when: stat_cceConfigAlreadyDone.stat.exists == false

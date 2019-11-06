@@ -1,0 +1,156 @@
+---
+
+
+- import_playbook: sagenv-sysprep-base.yaml
+  vars:
+    inventory_groupnames: all_webmethods_cce
+  tags:
+    - sysprep
+
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: all_webmethods_cce
+  tags:
+    - sysprep
+
+- hosts: all_webmethods_cce
+  pre_tasks:
+    - name: Pre-tasks as root
+      block:
+        - name: copy private key to user home
+          copy: 
+            src: "{{ item }}"
+            dest: "/home/{{ cce_owner }}/.ssh/id_rsa" 
+            owner: "{{ cce_owner }}"
+            mode: 0600
+          with_fileglob:
+            - "{{ cce_provisioning_internal_sshkey }}"
+              
+        - name: Copy license file to target
+          copy:
+            src: "{{ item }}"
+            dest: "/home/{{ cce_owner }}/sag_licenses.zip"
+            owner: "{{ cce_owner }}"
+            group: "{{ cce_group }}"
+            mode: '0600'
+            remote_src: no
+          with_fileglob:
+            - "{{ cce_provisioning_license_path }}"
+
+        - name: Copy secrets file to target
+          copy:
+            src: "{{ item }}"
+            dest: "/home/{{ cce_owner }}/.setenv_cce_secrets.sh"
+            owner: "{{ cce_owner }}"
+            group: "{{ cce_group }}"
+            mode: '0600'
+            remote_src: no
+          with_fileglob:
+            - "{{ cce_provisioning_secrets_path }}"
+      become: true
+  tasks:
+    - name: Root tasks
+      block:
+        - import_role:
+            name: prepare-cce-provisoning
+        - import_role: 
+            name: update-firewall
+        - import_role: 
+            name: create-known-hosts
+          vars:
+            ssh_known_hosts_file: /etc/ssh/ssh_known_hosts
+      become: true
+    - name: Non Root tasks
+      block:
+        ## this is to make sure we gather the facts again as the user {{ cce_owner }} in order to get a valid {{ ansible_env.HOME }}
+        - setup:
+        - import_role: 
+            name: create-known-hosts
+          vars:
+            ssh_known_hosts_file: default
+        - import_role: 
+            name: install-cce
+        - import_role: 
+            name: configure-cce
+          vars:
+            config_item: tuning
+        - import_role: 
+            name: configure-cce
+          vars:
+            config_item: creds
+        - import_role: 
+            name: configure-cce
+          vars:
+            config_item: licenses
+        - import_role: 
+            name: configure-cce
+          vars:
+            config_item: repos
+        - import_role: 
+            name: configure-cce
+          vars:
+            config_item: update
+      become: true
+      become_user: "{{ cce_owner }}"
+  post_tasks:
+    - name: Post-tasks as root
+      block:
+        - setup:
+        - name: clear the sensitive files
+          file:
+            path: "{{ item }}"
+            state: absent
+          with_items:
+            - "/home/{{ cce_owner }}/.setenv_cce_secrets.sh"
+            - "/home/{{ cce_owner }}/sag_licenses.zip"      
+        - import_role: 
+            name: post-install-webmethods
+          vars:
+            do_reboot: true  
+      become: true
+  tags:
+    - sysprep_cce
+
+# - hosts: all_webmethods_cce
+#   become: true
+#   roles:
+#     - role: install-cce
+#       become_user: "{{ cce_owner }}"
+#     - role: post-install-webmethods
+#   tags:
+#     - install_cce
+
+# - hosts: all_webmethods_cce
+#   become: true
+#   become_user: "{{ cce_owner }}"
+#   roles:
+#     - role: configure-cce
+#       vars:
+#         config_item: tuning
+#     - role: configure-cce
+#       vars:
+#         config_item: creds
+#     - role: configure-cce
+#       vars:
+#         config_item: licenses
+#     - role: configure-cce
+#       vars:
+#         config_item: repos
+#     - role: configure-cce
+#       vars:
+#         config_item: update
+#   tags:
+#     - config_cce
+
+# - hosts: all_webmethods_cce
+#   become: true
+#   tasks:
+#     - name: clear the sensitive files
+#       file:
+#         path: "{{ item }}"
+#         state: absent
+#       with_items:
+#         - "/home/{{ cce_owner }}/.setenv_cce_secrets.sh"
+#         - "/home/{{ cce_owner }}/sag_licenses.zip"
+#   tags:
+#     - postinstall_cce

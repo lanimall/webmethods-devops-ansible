@@ -1,0 +1,71 @@
+[all]
+bastion1 ansible_host=${bastion1_hostname}
+commandcentral1 ansible_host=${commandcentral1_hostname} dns_internal=${commandcentral1_dns}
+apigateway1 ansible_host=${apigateway1_hostname} dns_internal=${apigateway1_dns}
+apigateway2 ansible_host=${apigateway2_hostname} dns_internal=${apigateway2_dns}
+apigw-internaldatastore1 ansible_host=${apigw-internaldatastore1_hostname} dns_internal=${apigw-internaldatastore1_dns}
+apigw-internaldatastore2 ansible_host=${apigw-internaldatastore2_hostname} dns_internal=${apigw-internaldatastore2_dns}
+apigw-internaldatastore3 ansible_host=${apigw-internaldatastore3_hostname} dns_internal=${apigw-internaldatastore3_dns}
+apiportal1 ansible_host=${apiportal1_hostname} dns_internal=${apiportal1_dns}
+deployer1 ansible_host=${deployer1_hostname} dns_internal=${deployer1_dns}
+abe1 ansible_host=${abe1_hostname} dns_internal=${abe1_dns}
+isvaltesting1 ansible_host=${isvaltesting1_hostname} dns_internal=${isvaltesting1_dns}
+jenkins1 ansible_host=${jenkins1_hostname} dns_internal=${jenkins1_dns}
+aris1 ansible_host=${aris1_hostname} dns_internal=${aris1_dns}
+alfabet1 ansible_host=${alfabet1_hostname} dns_internal=${alfabet1_dns}
+
+[all_linux]
+bastion1 ansible_host=${bastion1_hostname} extra_packages='["telnet","wget", "git", "bind-utils"]'
+commandcentral1 ansible_host=${commandcentral1_hostname} dns_internal=${commandcentral1_dns} extra_packages='["ant","telnet","wget"]'
+apigateway1 ansible_host=${apigateway1_hostname} dns_internal=${apigateway1_dns}
+apigateway2 ansible_host=${apigateway2_hostname} dns_internal=${apigateway2_dns}
+apigw-internaldatastore1 ansible_host=${apigw-internaldatastore1_hostname} dns_internal=${apigw-internaldatastore1_dns}
+apigw-internaldatastore2 ansible_host=${apigw-internaldatastore2_hostname} dns_internal=${apigw-internaldatastore2_dns}
+apigw-internaldatastore3 ansible_host=${apigw-internaldatastore3_hostname} dns_internal=${apigw-internaldatastore3_dns}
+apiportal1 ansible_host=${apiportal1_hostname} dns_internal=${apiportal1_dns}
+deployer1 ansible_host=${deployer1_hostname} dns_internal=${deployer1_dns}
+abe1 ansible_host=${abe1_hostname} dns_internal=${abe1_dns}
+isvaltesting1 ansible_host=${isvaltesting1_hostname} dns_internal=${isvaltesting1_dns}
+jenkins1 ansible_host=${jenkins1_hostname} dns_internal=${jenkins1_dns}
+
+[all_windows]
+aris1 ansible_host=${aris1_hostname} dns_internal=${aris1_dns}
+alfabet1 ansible_host=${alfabet1_hostname} dns_internal=${alfabet1_dns}
+
+[all_webmethods_no_cce_linux]
+apigateway1 ansible_host=${apigateway1_hostname} dns_internal=${apigateway1_dns}
+apigateway2 ansible_host=${apigateway2_hostname} dns_internal=${apigateway2_dns}
+apigw-internaldatastore1 ansible_host=${apigw-internaldatastore1_hostname} dns_internal=${apigw-internaldatastore1_dns}
+apigw-internaldatastore2 ansible_host=${apigw-internaldatastore2_hostname} dns_internal=${apigw-internaldatastore2_dns}
+apigw-internaldatastore3 ansible_host=${apigw-internaldatastore3_hostname} dns_internal=${apigw-internaldatastore3_dns}
+apiportal1 ansible_host=${apiportal1_hostname} dns_internal=${apiportal1_dns}
+deployer1 ansible_host=${deployer1_hostname} dns_internal=${deployer1_dns}
+abe1 ansible_host=${abe1_hostname} dns_internal=${abe1_dns}
+isvaltesting1 ansible_host=${isvaltesting1_hostname} dns_internal=${isvaltesting1_dns}
+
+[all_webmethods_cce]
+commandcentral1 ansible_host=${commandcentral1_hostname} dns_internal=${commandcentral1_dns}
+
+[all_webmethods_apigateway]
+apigateway1 ansible_host=${apigateway1_hostname} dns_internal=${apigateway1_dns}
+apigateway2 ansible_host=${apigateway2_hostname} dns_internal=${apigateway2_dns}
+
+[all_webmethods_apigwinternaldatastore]
+apigw-internaldatastore1 ansible_host=${apigw-internaldatastore1_hostname} dns_internal=${apigw-internaldatastore1_dns}
+apigw-internaldatastore2 ansible_host=${apigw-internaldatastore2_hostname} dns_internal=${apigw-internaldatastore2_dns}
+apigw-internaldatastore3 ansible_host=${apigw-internaldatastore3_hostname} dns_internal=${apigw-internaldatastore3_dns}
+
+[all_webmethods_apiportal]
+apiportal1 ansible_host=${apiportal1_hostname} dns_internal=${apiportal1_dns}
+
+[all_jenkins]
+jenkins1 ansible_host=${jenkins1_hostname} dns_internal=${jenkins1_dns}
+
+[all_webmethods_deployer]
+deployer1 ansible_host=${deployer1_hostname} dns_internal=${deployer1_dns}
+
+[all_webmethods_abe]
+abe1 ansible_host=${abe1_hostname} dns_internal=${abe1_dns}
+
+[all_webmethods_isvaltesting]
+isvaltesting1 ansible_host=${isvaltesting1_hostname} dns_internal=${isvaltesting1_dns}

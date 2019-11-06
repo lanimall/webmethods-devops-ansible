@@ -1,0 +1,32 @@
+---
+
+  - name: get service facts
+    service_facts:
+
+  - name: Append service to {{ service_name }}
+    set_fact:
+      service_name_index: "{{ service_name }}.service"
+
+  - name: Perform service configs
+    block:
+      - name: create systemd override directory
+        file:
+          path: /etc/systemd/system/{{ service_name }}.service.d
+          state: directory
+
+      - name: add systemd override
+        template:
+          src: override.j2
+          dest: /etc/systemd/system/{{ service_name }}.service.d/override.conf
+
+      - name: force systemd to reread configs after modification
+        systemd: daemon_reload=yes
+
+    when: service_env is defined and service_env.keys()|length > 0 and ansible_facts.services[service_name_index] is defined and ansible_facts.services[service_name_index].source == "systemd"
+
+  - name: Update service state
+    service: 
+      name: "{{ service_name }}"
+      state: "{{ service_state }}"
+      enabled: "{{ service_enabled }}"
+    when: ansible_facts.services[service_name_index] is defined

@@ -1,0 +1,9 @@
+---
+
+cce_provisioning_target_host_aliases: []
+cce_provisioning_target_hosts: []
+
+cce_provisioning_install_stackname: ""
+cce_provisioning_install_params: 
+  - name: "SOME_PARAM"
+    value: "SOME_PARAM_VALUE"

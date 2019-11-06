@@ -1,0 +1,34 @@
+---
+
+### Needs:
+### - service_name
+### - service_env
+
+  - name: get service facts
+    service_facts:
+
+  - name: Format service name to {{ service_name }}.service for service_facts lookup
+    set_fact:
+      service_name_index: "{{ service_name }}.service"
+
+  - name: Perform service overrides if it exists
+    block:
+      - name: create systemd override directory
+        file:
+          path: /etc/systemd/system/{{ service_name }}.service.d
+          state: directory
+
+      - name: create override file first
+        file:
+          path: /etc/systemd/system/{{ service_name }}.service.d/override.conf
+          state: touch
+
+      - name: Populate systemd override if the service_env are defined
+        template:
+          src: override.j2
+          dest: /etc/systemd/system/{{ service_name }}.service.d/override.conf
+        when: service_env is defined and service_env.keys()|length > 0
+
+      - name: force systemd to reread configs after modification
+        systemd: daemon_reload=yes
+    when: ansible_facts.services[service_name_index] is defined and ansible_facts.services[service_name_index].source == "systemd"

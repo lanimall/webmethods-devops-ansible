@@ -1,0 +1,49 @@
+---
+
+### Needs:
+### - service_name
+### - service_exec_filepath
+### - service_user
+### - service_type
+
+  - name: get service facts
+    service_facts:
+
+  - name: Format service name to {{ service_name }}.service for service_facts lookup
+    set_fact:
+      service_name_index: "{{ service_name }}.service"
+
+  - name: Perform service creation if service does not exist
+    block:
+      - name: Print debug message
+        debug:
+          msg: "Service {{ service_name }} not found. Will create."
+
+      - name: Check for wM daemon script
+        stat: 
+          path: "{{ webmethods_install_dir }}/common/bin/daemon.sh"
+        register: stat_wmdDaemonFile
+
+      - name: Use 'argv' to send a command as a list
+        command:
+          argv:
+            - "{{ webmethods_install_dir }}/common/bin/daemon.sh"
+            - "-f"
+            - "{{ service_exec_filepath }}"
+            - "-u"
+            - "{{ service_user }}"
+            - "-n"
+            - "{{ service_name }}"
+            - "-T"
+            - "{{ service_type }}"
+        when: stat_wmdDaemonFile.stat.exists
+    when: ansible_facts.services[service_name_index] is not defined
+
+  - name: Do nothing if service exists
+    block:
+      - name: Print debug message
+        debug:
+          msg: "Service {{ service_name }} is already there. do nothing."
+    when: ansible_facts.services[service_name_index] is defined
+
+    

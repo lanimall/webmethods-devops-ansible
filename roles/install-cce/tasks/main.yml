@@ -1,0 +1,35 @@
+---
+
+### here we could create the steps to re-install cce if force = true
+
+  - name: Check if CCE install was already done
+    stat: 
+      path: "{{ ansible_env.HOME }}/provision_ccserver.status.success"
+    register: stat_cceInstallAlreadyDone
+
+  - name: Install CCE only if {{ ansible_env.HOME }}/provision_ccserver.status.success does not exist.
+    block:
+    - name: Run CCE installation with user {{ cce_owner }}
+      command: "/bin/bash scripts/provision_ccserver.sh {{ cce_owner }}"
+      async: 1000
+      poll: 0
+      args:
+        chdir: "{{ cce_provisioning_path }}"
+        creates: "{{ ansible_env.HOME }}/provision_ccserver.status.success"
+      register: provision_ccserver_sleeper
+      when: stat_cceInstallAlreadyDone.stat.exists == false
+
+    - name: Check status of CCE installation command
+      async_status:
+        jid: "{{ provision_ccserver_sleeper.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 100
+      delay: 10
+
+    - name: Copy command result to the server
+      copy:
+        content: "{{ job_result.stdout }}"
+        dest: "{{ ansible_env.HOME }}/provision_ccserver_{{ inventory_hostname }}.out"
+    
+    when: stat_cceInstallAlreadyDone.stat.exists == false

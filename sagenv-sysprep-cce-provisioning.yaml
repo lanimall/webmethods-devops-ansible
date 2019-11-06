@@ -1,0 +1,9 @@
+---
+
+##that copies the latest provisioning project if needed
+- hosts: all_webmethods_cce
+  become: true
+  roles:
+    - role: prepare-cce-provisoning
+  tags:
+    - sysprep_cce

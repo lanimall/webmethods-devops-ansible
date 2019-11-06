@@ -1,0 +1,87 @@
+---
+
+### minimum params:
+### cce_provisioning_stack_name (type: string)
+### cce_provisioning_stack_inventory_groupnames (type: string)
+### cce_provisioning_stack_params (type: dictionary)
+### cce_provisioning_stack_product_names (type: list)
+### cce_provisioning_stack_product_envs_by_name (type: dictionary)
+### postinstall_reboot (type: boolean)
+
+- hosts: all_webmethods_cce
+  become: true
+  tasks:
+    - name: Provisionning {{ cce_provisioning_stack_name }}
+      command: echo "Provisioning {{ cce_provisioning_stack_name }} on inventory groups {{ cce_provisioning_stack_inventory_groupnames }}"
+    - name: Print the params
+      debug:
+        msg: 
+        - "Running webmethods producct provisoning with:"
+        - "cce_provisioning_stack_name = {{ cce_provisioning_stack_name }}"
+        - "cce_provisioning_stack_inventory_groupnames = {{ cce_provisioning_stack_inventory_groupnames }}"
+        - "cce_provisioning_stack_params = {{ cce_provisioning_stack_params }}"
+        - "cce_provisioning_stack_product_names = {{ cce_provisioning_stack_product_names }}"
+        - "cce_provisioning_stack_product_envs_by_name = {{ cce_provisioning_stack_product_envs_by_name }}"
+
+##install stack
+- hosts: all_webmethods_cce
+  become: true
+  become_user: "{{ cce_owner }}"
+  pre_tasks:
+    - name: set initial facts
+      set_fact:
+        cce_provisioning_stack_inventory_groupnames_hosts: []
+    - name: Build a list of the inventory hosts
+      set_fact:
+        cce_provisioning_stack_inventory_groupnames_hosts: "{{ cce_provisioning_stack_inventory_groupnames_hosts }} + {{ groups[item] }}"
+      with_items: "{{ cce_provisioning_stack_inventory_groupnames.split(',') }}"
+      when: cce_provisioning_stack_inventory_groupnames is defined
+  roles:
+    - role: provision-with-cce
+      vars:
+        cce_provisioning_target_host_aliases: "{{ cce_provisioning_stack_inventory_groupnames_hosts }}"
+        cce_provisioning_install_stackname: "{{ cce_provisioning_stack_name }}"
+        cce_provisioning_install_params: "{{ cce_provisioning_stack_params }}"
+  tags:
+    - install
+
+##stop SPM process before installing and starting the service
+- hosts: "{{ cce_provisioning_stack_inventory_groupnames }}"
+  roles:
+    - role: post-install-webmethods
+      become: true
+
+    # loopiong over roles, as it's possible a single CCE stack could create multiple products that need to be set with a service
+    # - name: myrole
+    #   with_items:
+    #     - "aone"
+    #     - "atwo"
+    #   include_role:
+    #     name: myrole
+    #   vars:
+    #     thing: "{{ item }}"
+
+    - role: command-webmethods
+      vars:
+        command: "stop"
+        product_name: "{{ cce_provisioning_stack_product_names }}"
+      become: true
+      become_user: "{{ webmethods_user }}"
+    - role: service-webmethods
+      vars:
+        command: "create"
+        product_name: "{{ cce_provisioning_stack_product_names }}"
+      become: true
+    - role: service-webmethods
+      vars:
+        command: "update"
+        product_name: "{{ cce_provisioning_stack_product_names }}"
+        service_env: "{{ cce_provisioning_stack_product_envs_by_name }}"
+      become: true
+    - role: service-webmethods
+      vars:
+        command: "restart"
+        product_name: "{{ cce_provisioning_stack_product_names }}"
+      become: true
+  tags:
+    - post-install

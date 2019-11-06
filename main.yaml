@@ -1,0 +1,16 @@
+---
+
+# this set all the OS default we want
+- import_playbook: sagenv-sysprep.yaml
+
+# this install and configure CCE as we need
+- import_playbook: sagenv-cce-server.yaml
+
+# this install and configure all the SPMs on all the target servers
+- import_playbook: sagenv-cce-set-landscape.yaml
+
+# this install and configure all the components needed for CI/CD
+#- import_playbook: sagenv-cce-provision-cicd.yaml
+
+# this install and configure all the components needed for API MGT
+#- import_playbook: sagenv-cce-provision-apimgt.yaml

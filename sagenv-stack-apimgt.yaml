@@ -1,0 +1,45 @@
+---
+
+
+- import_playbook: sagenv-sysprep-base.yaml
+  vars:
+    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+  tags:
+    - sysprep
+
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+  tags:
+    - sysprep
+
+##that ensures that the nodes have SPM set properly 
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: spm
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: spm
+    cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+  tags:
+    - install-spm
+
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: internaldatastore
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigwinternaldatastore
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: internaldatastore
+    cce_provisioning_stack_product_envs_by_name: {}
+  tags:
+    - install-internaldatastore
+
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: tc_cluster
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: terracotta
+#     cce_provisioning_stack_product_envs_by_name: {}
+#   tags:
+#     - install-terracotta

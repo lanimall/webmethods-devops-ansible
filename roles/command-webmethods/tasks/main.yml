@@ -1,0 +1,8 @@
+---
+
+- name: Print the params
+  debug:
+    msg: "Running command {{ command }} for product {{ product_name }}"
+
+# - include: "product_{{product_name}}.yaml"
+- import_tasks: "product_{{product_name}}.yaml"

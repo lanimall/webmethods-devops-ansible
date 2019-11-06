@@ -1,0 +1,41 @@
+---
+
+  - name: Command shutdown
+    block:
+    - name: Check if shutdown script exists
+      stat:
+        path: "{{ webmethods_script_dir }}/{{ webmethods_script_stop }}"
+      register: stat_shutdown
+    
+    - name: run shutdown script
+      shell: "{{ webmethods_script_stop }}"
+      args:
+        chdir: "{{ webmethods_script_dir }}"
+        executable: /bin/sh
+      register: cmd_result
+      when: stat_shutdown.stat.exists 
+    
+    - name: Print command results to the console.
+      debug: var=cmd_result
+
+    when: command is defined and command == "stop"
+
+  - name: Command startup
+    block:
+    - name: Check if startup script exists
+      stat: 
+        path: "{{ webmethods_script_dir }}/{{ webmethods_script_start }}"
+      register: stat_startup
+    
+    - name: run startup script
+      shell: "{{ webmethods_script_start }}"
+      args:
+        chdir: "{{ webmethods_script_dir }}"
+        executable: /bin/sh
+      register: cmd_result
+      when: stat_startup.stat.exists 
+    
+    - name: Print command results to the console.
+      debug: var=cmd_result
+
+    when: command is defined and command == "start"

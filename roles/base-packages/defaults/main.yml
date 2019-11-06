@@ -1,0 +1,7 @@
+---
+
+mandatory_packages:
+  - firewalld
+  - vim
+
+extra_packages: []

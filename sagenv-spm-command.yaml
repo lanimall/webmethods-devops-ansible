@@ -1,0 +1,13 @@
+---
+
+##stop SPM process before installing and starting the service
+- hosts: "{{ inventory_groupnames }}"
+  become: true
+  become_user: "{{ webmethods_user }}"
+  roles:
+    - role: command-webmethods
+      vars:
+        command: "{{ command }}"
+        product_name: "{{ cce_provisioning_stack_product_names }}"
+  tags:
+    - post-install

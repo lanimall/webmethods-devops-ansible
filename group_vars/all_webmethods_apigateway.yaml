@@ -1,0 +1,33 @@
+---
+
+sys_open_ports: ["8092/tcp","8093/tcp","9072/tcp","5555/tcp","9999/tcp","9510/tcp","9520/tcp","9530/tcp","9540/tcp"]
+
+sysctl_config:
+  fs.file-max: "250000"
+      
+limits_configs:
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nofile
+    value: 250000
+    comment: 'increase the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nofile
+    value: 250000
+    comment: 'increase the max file descriptor'
+  - domain: "{{ webmethods_user }}"
+    type: soft
+    item: nproc
+    value: 20000
+    comment: 'increase the max process limit'
+  - domain: "{{ webmethods_user }}"
+    type: hard
+    item: nproc
+    value: 20000
+    comment: 'increase the max process limit'
+
+##ensures the SPM service has the right limits applied
+webmethods_spm_service_env:
+  LimitNOFILE: "250000"
+  LimitNPROC: "20000"

@@ -1,0 +1,7 @@
+---
+
+- name: Print the params
+  debug:
+    msg: "Running service command {{ command }} for product {{ product_name }}"
+
+- import_tasks: "product_{{product_name}}.yaml"

@@ -1,0 +1,9 @@
+---
+
+# service name to update
+service_name:
+service_state: "restarted"
+service_enabled: true
+
+# Dictionary of variables to set
+service_env: {}

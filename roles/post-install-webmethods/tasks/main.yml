@@ -1,0 +1,29 @@
+---
+
+  - name: Check for wM afterInstallAsRoot
+    stat: 
+      path: "{{ webmethods_install_dir }}/bin/afterInstallAsRoot.sh"
+    register: stat_afterInstallAsRootExecFile
+
+  - name: Run afterInstallAsRoot command
+    command: "{{ webmethods_install_dir }}/bin/afterInstallAsRoot.sh"
+    args:
+      creates: "{{ webmethods_install_dir }}/cc-boot/afterInstallAsRootLog.txt"
+    when: stat_afterInstallAsRootExecFile.stat.exists
+
+  - name: Reboot the machine ONLY IF do_reboot set to true ({{do_reboot}})
+    reboot:
+      reboot_timeout: 1000
+    async: 1000
+    poll: 0
+    register: reboot_sleeper
+    when: do_reboot
+
+  - name: 'check on reboot status'
+    async_status:
+      jid: "{{ reboot_sleeper.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    retries: 100
+    delay: 10
+    when: do_reboot

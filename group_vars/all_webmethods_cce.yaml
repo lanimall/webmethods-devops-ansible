@@ -1,0 +1,30 @@
+---
+
+cce_install_dir: "{{ webmethods_install_dir }}"
+cce_owner: "{{ webmethods_user }}"
+cce_group: "{{ webmethods_group }}"
+
+sys_open_ports: ["8090/tcp","8091/tcp","8092/tcp","8093/tcp"]
+
+## cce_provisioning params
+cce_provisioning_path: /opt/webMethods-devops-provisioning/
+
+## local path
+cce_provisioning_src: ~/webMethods-devops-provisioning/
+cce_provisioning_license_path: ~/licenses.zip
+cce_provisioning_secrets_path: ~/.secrets
+cce_provisioning_internal_sshkey: ~/id_rsa_webmethods
+
+## versions
+#cce_version: 10.3
+#cce_version_fix: fix8
+#cce_platform: lnxamd64
+#cce_product_repo_name: webMethods-10.3
+#cce_fix_repo_name: Empower
+
+## versions
+cce_version: 10.5
+cce_version_fix: fix1
+cce_platform: lnxamd64
+cce_product_repo_name: webMethods-10.5
+cce_fix_repo_name: Empower

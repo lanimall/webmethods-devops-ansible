@@ -1,0 +1,66 @@
+---
+
+##that copies the latest provisioning project if needed
+- hosts: all_webmethods_cce
+  become: true
+  roles:
+    - role: prepare-cce-provisoning
+  tags:
+    - sysprep_cce
+
+- import_playbook: sagenv-cce-connect-spm.yaml
+  vars:
+    inventory_groupname: all_webmethods_no_cce_linux
+
+- hosts: localhost
+  tasks:
+    - name: Install jenkins role from ansible-galaxy
+      command:
+        argv:
+          - "ansible-galaxy"
+          - install
+          - geerlingguy.jenkins,3.8.0
+  tags:
+    - sysprep
+
+- hosts: all_webmethods_deployer
+  become: true
+  roles:
+    - role: update-firewall
+      vars:
+        sys_open_ports: []
+  tags:
+    - sysprep
+
+- hosts: all_jenkins
+  vars:
+    jenkins_hostname: jenkins.{{ env_url_domain }}
+    jenkins_package_state: present
+    jenkins_version: "2.190.2"
+  roles:
+    - role: geerlingguy.jenkins
+      become: yes
+  tags:
+    - provision
+
+- hosts: all_webmethods_cce
+  become: true
+  become_user: "{{ cce_owner }}"
+  roles:
+    - role: provision-with-cce
+      vars:
+        install_host_aliases: "{{ groups['all_webmethods_deployer'] }}"
+        install_stackname: deployer
+        postinstall_state: "stopped"
+    - role: provision-with-cce
+      vars:
+        install_host_aliases: "{{ groups['all_webmethods_abe'] }}"
+        install_stackname: abe
+        postinstall_state: "stopped"
+    - role: provision-with-cce
+      vars:
+        install_host_aliases: "{{ groups['all_webmethods_isvaltesting'] }}"
+        install_stackname: is_stateless
+        postinstall_state: "stopped"
+  tags:
+    - provision
