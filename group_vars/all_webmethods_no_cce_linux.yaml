@@ -1,7 +1,5 @@
 ---
 
-sys_open_ports_spm: ["8092/tcp","8093/tcp"]
-
 ## some webmethods settings
 webmethods_spm_stop: "{{ webmethods_install_dir }}/InternalDataStore/bin/shutdown.sh"
 webmethods_spm_start: "{{ webmethods_install_dir }}/InternalDataStore/bin/startup.sh"

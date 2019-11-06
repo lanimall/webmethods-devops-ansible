@@ -1,7 +1,7 @@
 ---
 
 ## the sysprep values to use for this group
-sys_open_ports: ["8092/tcp","8093/tcp","18101/tcp"]
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apiportal }}"
 
 sysctl_config:
   vm.max_map_count: "262144"

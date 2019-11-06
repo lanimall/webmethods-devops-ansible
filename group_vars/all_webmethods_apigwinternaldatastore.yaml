@@ -2,7 +2,7 @@
 
 # The variables file used by the playbooks in the all_linux group.
 
-sys_open_ports: ["8092/tcp","8093/tcp","9340/tcp"]
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_internaldatastore }}"
 
 limits_openfiles: "250000"
 limits_processes: "20000"
@@ -32,6 +32,16 @@ limits_configs:
     item: nproc
     value: 20000
     comment: 'increase the max process limit'
+
+cce_provisioning_stack_product_envs_by_name:
+  spm:
+    LimitNOFILE: "250000"
+    LimitNPROC: "20000"
+  internaldatastore:
+    LimitNOFILE: "65536"
+    LimitNPROC: "16000"
+    LimitAS: "infinity"
+    LimitFSIZE: "infinity"
 
 webmethods_spm_service_env:
   LimitNOFILE: "250000"

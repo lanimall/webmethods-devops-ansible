@@ -12,8 +12,20 @@ webmethods_internal_sshkey_pub: ~/id_rsa_webmethods.pub
 env_url_domain: clouddemo.saggov.com
 
 ## default spm service name and envs
-webmethods_spm_servicename: sag1spm105
 webmethods_spm_service_env: {}
+cce_provisioning_stack_product_envs_by_name: {}
+
+## default open ports based on products
+sys_open_ports_spm: ["8092/tcp","8093/tcp"]
+sys_open_ports_cee: ["8090/tcp","8091/tcp"]
+sys_open_ports_deployer: ["8092/tcp","8093/tcp"]
+sys_open_ports_abe: []
+sys_open_ports_is: ["8092/tcp","8093/tcp"]
+sys_open_ports_internaldatastore: ["9340/tcp"]
+sys_open_ports_apigateway: ["9072/tcp","5555/tcp","9999/tcp"]
+sys_open_ports_terracotta: ["9510/tcp","9520/tcp","9530/tcp","9540/tcp"]
+sys_open_ports_apiportal: ["18101/tcp"]
+sys_open_ports_jenkins: ["8080/tcp"]
 
 ## some default sysprep values
 sys_open_ports: []

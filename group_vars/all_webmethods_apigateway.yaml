@@ -1,6 +1,6 @@
 ---
 
-sys_open_ports: ["8092/tcp","8093/tcp","9072/tcp","5555/tcp","9999/tcp","9510/tcp","9520/tcp","9530/tcp","9540/tcp"]
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apigateway }} + {{ sys_open_ports_terracotta }}"
 
 sysctl_config:
   fs.file-max: "250000"

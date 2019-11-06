@@ -4,7 +4,7 @@ cce_install_dir: "{{ webmethods_install_dir }}"
 cce_owner: "{{ webmethods_user }}"
 cce_group: "{{ webmethods_group }}"
 
-sys_open_ports: ["8090/tcp","8091/tcp","8092/tcp","8093/tcp"]
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_cee }}" 
 
 ## cce_provisioning params
 cce_provisioning_path: /opt/webMethods-devops-provisioning/
