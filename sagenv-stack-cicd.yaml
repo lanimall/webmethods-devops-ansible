@@ -1,16 +1,14 @@
 ---
 
-##that copies the latest provisioning project if needed
-- hosts: all_webmethods_cce
-  become: true
-  roles:
-    - role: prepare-cce-provisoning
-  tags:
-    - sysprep_cce
-
-- import_playbook: sagenv-cce-connect-spm.yaml
+- import_playbook: sagenv-sysprep-base.yaml
   vars:
-    inventory_groupname: all_webmethods_no_cce_linux
+    inventory_groupnames: all_jenkins,all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
+
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
+
+- import_playbook: sagenv-sysprep-cce-provisioning.yaml
 
 - hosts: localhost
   tasks:
@@ -23,15 +21,6 @@
   tags:
     - sysprep
 
-- hosts: all_webmethods_deployer
-  become: true
-  roles:
-    - role: update-firewall
-      vars:
-        sys_open_ports: []
-  tags:
-    - sysprep
-
 - hosts: all_jenkins
   vars:
     jenkins_hostname: jenkins.{{ env_url_domain }}
@@ -41,26 +30,51 @@
     - role: geerlingguy.jenkins
       become: yes
   tags:
-    - provision
+    - install
+    - install-jenkins
 
-- hosts: all_webmethods_cce
-  become: true
-  become_user: "{{ cce_owner }}"
-  roles:
-    - role: provision-with-cce
-      vars:
-        install_host_aliases: "{{ groups['all_webmethods_deployer'] }}"
-        install_stackname: deployer
-        postinstall_state: "stopped"
-    - role: provision-with-cce
-      vars:
-        install_host_aliases: "{{ groups['all_webmethods_abe'] }}"
-        install_stackname: abe
-        postinstall_state: "stopped"
-    - role: provision-with-cce
-      vars:
-        install_host_aliases: "{{ groups['all_webmethods_isvaltesting'] }}"
-        install_stackname: is_stateless
-        postinstall_state: "stopped"
-  tags:
-    - provision
+
+# ##that ensures that the nodes have SPM set properly 
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: spm
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: spm
+#     cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+#   tags:
+#     - install
+#     - install-spm
+
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: deployer
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_deployer
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: integrationserver
+#     cce_provisioning_stack_product_envs_by_name: {}
+#   tags:
+#     - install
+#     - install-deployer
+
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: is_stateless
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_isvaltesting
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: integrationserver
+#     cce_provisioning_stack_product_envs_by_name: {}
+#   tags:
+#     - install
+#     - install-integrationserver
+
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: abe
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_abe
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names:
+#     cce_provisioning_stack_product_envs_by_name: {}
+#   tags:
+#     - install
+#     - install-abe

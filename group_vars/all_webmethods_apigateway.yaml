@@ -2,32 +2,36 @@
 
 sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apigateway }} + {{ sys_open_ports_terracotta }}"
 
+limits_openfiles: "250000"
+limits_processes: "20000"
+
 sysctl_config:
-  fs.file-max: "250000"
+  vm.max_map_count: "262144"
+  fs.file-max: "{{ limits_openfiles }}"
       
 limits_configs:
   - domain: "{{ webmethods_user }}"
     type: soft
     item: nofile
-    value: 250000
+    value: "{{ limits_openfiles }}"
     comment: 'increase the max file descriptor'
   - domain: "{{ webmethods_user }}"
     type: hard
     item: nofile
-    value: 250000
+    value: "{{ limits_openfiles }}"
     comment: 'increase the max file descriptor'
   - domain: "{{ webmethods_user }}"
     type: soft
     item: nproc
-    value: 20000
+    value: "{{ limits_processes }}"
     comment: 'increase the max process limit'
   - domain: "{{ webmethods_user }}"
     type: hard
     item: nproc
-    value: 20000
+    value: "{{ limits_processes }}"
     comment: 'increase the max process limit'
 
 ##ensures the SPM service has the right limits applied
 webmethods_spm_service_env:
-  LimitNOFILE: "250000"
-  LimitNPROC: "20000"
+  LimitNOFILE: "{{ limits_openfiles }}"
+  LimitNPROC: "{{ limits_processes }}"

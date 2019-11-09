@@ -14,16 +14,4 @@
   - name: Reboot the machine ONLY IF do_reboot set to true ({{do_reboot}})
     reboot:
       reboot_timeout: 1000
-    async: 1000
-    poll: 0
-    register: reboot_sleeper
-    when: do_reboot
-
-  - name: 'check on reboot status'
-    async_status:
-      jid: "{{ reboot_sleeper.ansible_job_id }}"
-    register: job_result
-    until: job_result.finished
-    retries: 100
-    delay: 10
     when: do_reboot

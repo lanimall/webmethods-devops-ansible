@@ -4,5 +4,6 @@
   debug:
     msg: "Running command {{ command }} for product {{ product_name }}"
 
-# - include: "product_{{product_name}}.yaml"
-- import_tasks: "product_{{product_name}}.yaml"
+- name: Include tasks
+  include_tasks: "product_{{ product_name }}.yaml"
+  when: product_name is defined

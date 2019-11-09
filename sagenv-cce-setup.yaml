@@ -13,6 +13,8 @@
   tags:
     - sysprep
 
+- import_playbook: sagenv-sysprep-cce-provisioning.yaml
+
 - hosts: all_webmethods_cce
   pre_tasks:
     - name: Pre-tasks as root
@@ -51,8 +53,6 @@
   tasks:
     - name: Root tasks
       block:
-        - import_role:
-            name: prepare-cce-provisoning
         - import_role: 
             name: update-firewall
         - import_role: 

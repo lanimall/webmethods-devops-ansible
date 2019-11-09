@@ -5,6 +5,8 @@
   vars:
     inventory_groupnames: all_linux
 
+- import_playbook: sagenv-sysprep-cce-provisioning.yaml
+
 - import_playbook: sagenv-sysprep-webmethods.yaml
   vars:
     inventory_groupnames: all_webmethods_no_cce_linux,all_webmethods_cce

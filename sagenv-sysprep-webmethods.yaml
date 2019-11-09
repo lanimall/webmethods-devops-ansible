@@ -15,5 +15,3 @@
     - role: update-os
   tags:
     - sysprep_webmethods
-
-- import_playbook: sagenv-sysprep-cce-provisioning.yaml

@@ -1,16 +1,16 @@
 ---
 
-  - name: Print the all_hosts aliases to the console.
+  - name: Print the target ansible host aliases to the console.
     debug: var=cce_provisioning_target_host_aliases
   
-  - name: Print the all_hosts to the console.
+  - name: Print the target ansible hosts to the console.
     debug: var=cce_provisioning_target_hosts
 
   - name: Clear the all_hosts_computed fact
     set_fact:
       all_hosts_computed: []
 
-  - name: Build a list of all the hosts based on aliases
+  - name: Build a list of all the hosts based on ansible aliases
     set_fact:
       all_hosts_computed: "{{ all_hosts_computed }} + [ '{{ hostvars[item].ansible_host }}' ]"
     with_items: "{{ cce_provisioning_target_host_aliases }}"
@@ -22,10 +22,10 @@
     with_items: "{{ cce_provisioning_target_hosts }}"
     when: cce_provisioning_target_hosts is defined and (cce_provisioning_target_hosts|length>0)
 
-  - name: Print the all_hosts to the console.
+  - name: Print the final target hosts for stack {{ cce_provisioning_install_stackname }}
     debug: var=all_hosts_computed
 
-  - name: Run provision hosts stack params
+  - name: Setting target hosts for stack {{ cce_provisioning_install_stackname }}
     command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} {{ item.append }}
     args:
       chdir: "{{ cce_provisioning_path }}"
@@ -35,28 +35,32 @@
         append: "false"
     when: all_hosts_computed is defined and (all_hosts_computed|length>0)
 
-  - name: Run provision extra stack params
+  - name: Setting params for stack {{ cce_provisioning_install_stackname }}
     command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} true
     args:
       chdir: "{{ cce_provisioning_path }}"
     with_items: "{{ cce_provisioning_install_params }}"
     when: cce_provisioning_install_params is defined
 
-  - name: Run provision stack
+  ## let's match this async timeout with the CCE job timeout set in the tuning template
+  ## timeout.job.seconds: 4800
+  - name: Run provision stack {{ cce_provisioning_install_stackname }}
     command: ./scripts/provision_stack.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }}
-    async: 1000
+    async: 4800
     poll: 0
     args:
       chdir: "{{ cce_provisioning_path }}"
     register: provision_stack_sleeper
 
-  - name: 'check on provision_stack async task'
+  ## let's match the retries/delay timeouts with the CCE job timeout set in the tuning template
+  ## timeout.job.seconds: 4800
+  - name: Check status for tasks {{ cce_provisioning_install_stackname }}
     async_status:
       jid: "{{ provision_stack_sleeper.ansible_job_id }}"
     register: job_result
     until: job_result.finished
-    retries: 100
-    delay: 10
+    retries: 200
+    delay: 24
 
   - name: Print the job_result to the console.
     debug: var=job_result.stdout_lines

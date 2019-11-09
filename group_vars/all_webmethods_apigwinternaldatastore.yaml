@@ -9,40 +9,41 @@ limits_processes: "20000"
 
 sysctl_config:
   vm.max_map_count: "262144"
-  fs.file-max: "250000"
+  fs.file-max: "{{ limits_openfiles }}"
       
 limits_configs:
   - domain: "{{ webmethods_user }}"
     type: soft
     item: nofile
-    value: 250000
+    value: "{{ limits_openfiles }}"
     comment: 'increase the max file descriptor'
   - domain: "{{ webmethods_user }}"
     type: hard
     item: nofile
-    value: 250000
+    value: "{{ limits_openfiles }}"
     comment: 'increase the max file descriptor'
   - domain: "{{ webmethods_user }}"
     type: soft
     item: nproc
-    value: 20000
+    value: "{{ limits_processes }}"
     comment: 'increase the max process limit'
   - domain: "{{ webmethods_user }}"
     type: hard
     item: nproc
-    value: 20000
+    value: "{{ limits_processes }}"
     comment: 'increase the max process limit'
 
 cce_provisioning_stack_product_envs_by_name:
   spm:
-    LimitNOFILE: "250000"
-    LimitNPROC: "20000"
+    LimitNOFILE: "{{ limits_openfiles }}"
+    LimitNPROC: "{{ limits_processes }}"
   internaldatastore:
-    LimitNOFILE: "65536"
-    LimitNPROC: "16000"
+    LimitNOFILE: "{{ limits_openfiles }}"
+    LimitNPROC: "{{ limits_processes }}"
     LimitAS: "infinity"
     LimitFSIZE: "infinity"
+    LimitMEMLOCK: "infinity"
 
 webmethods_spm_service_env:
-  LimitNOFILE: "250000"
-  LimitNPROC: "20000"
+  LimitNOFILE: "{{ limits_openfiles }}"
+  LimitNPROC: "{{ limits_processes }}"

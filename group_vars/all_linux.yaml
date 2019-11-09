@@ -3,3 +3,4 @@
 mandatory_packages:
   - vim
   - firewalld
+  - telnet ##temp
