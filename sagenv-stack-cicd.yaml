@@ -1,14 +1,31 @@
 ---
 
+################################################################
+## Sys Prep
+################################################################
+
+## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
 - import_playbook: sagenv-sysprep-base.yaml
   vars:
     inventory_groupnames: all_jenkins,all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
+  tags:
+    - sysprep
 
+## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
 - import_playbook: sagenv-sysprep-webmethods.yaml
   vars:
     inventory_groupnames: all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
+  tags:
+    - sysprep
 
-- import_playbook: sagenv-sysprep-cce-provisioning.yaml
+## ensures that CCE is installed and well
+- import_playbook: sagenv-cce-setup.yaml
+  tags:
+    - sysprep
+
+################################################################
+## Jenkins provisoning
+################################################################
 
 - hosts: localhost
   tasks:
@@ -22,17 +39,37 @@
     - sysprep
 
 - hosts: all_jenkins
-  vars:
-    jenkins_hostname: jenkins.{{ env_url_domain }}
-    jenkins_package_state: present
-    jenkins_version: "2.190.2"
-  roles:
-    - role: geerlingguy.jenkins
-      become: yes
+  become: true
+  tasks:
+    - name: Install Jenkins with role
+      include_role:
+        name: geerlingguy.jenkins
+      vars:
+        jenkins_hostname: jenkins.{{ env_url_domain }}
+        jenkins_package_state: present
+        jenkins_version: "2.190.2" 
   tags:
     - install
     - install-jenkins
 
+################################################################
+## SPM provisioning
+################################################################
+
+# - import_playbook: sagenv-stack-webmethods-generic.yaml
+#   vars:
+#     cce_provisioning_stack_name: spm
+#     cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: spm
+#     cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+#     cce_provisioning_stack_validation_ports:
+#       - 8092
+#       - 8093
+#   tags:
+#     - sysprep
+#     - install
+#     - install-spm
 
 # ##that ensures that the nodes have SPM set properly 
 # - import_playbook: sagenv-stack-webmethods-generic.yaml
