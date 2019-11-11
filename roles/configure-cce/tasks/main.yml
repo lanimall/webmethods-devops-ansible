@@ -13,6 +13,35 @@
 
   - name: Prepare and configure CCE only if {{ status_success_filepath }} does not exist.
     block:
+      - name: copy private key to user home
+        copy: 
+          src: "{{ item }}"
+          dest: "{{ ansible_env.HOME }}/.ssh/id_rsa" 
+          mode: 0600
+        with_fileglob:
+          - "{{ cce_provisioning_internal_sshkey }}"
+        when: config_item == "creds"
+
+      - name: Copy secrets file to target
+        copy:
+          src: "{{ item }}"
+          dest: "{{ ansible_env.HOME }}/.setenv_cce_secrets.sh"
+          mode: '0600'
+          remote_src: no
+        with_fileglob:
+          - "{{ cce_provisioning_secrets_path }}"
+        when: config_item == "creds"
+
+      - name: Copy license file to target
+        copy:
+          src: "{{ item }}"
+          dest: "{{ ansible_env.HOME }}/sag_licenses.zip"
+          mode: '0600'
+          remote_src: no
+        with_fileglob:
+          - "{{ cce_provisioning_license_path }}"
+        when: config_item == "licenses"
+
       - name: Run configure command for config item {{ config_item }}
         command: "/bin/bash ./scripts/configure_ccserver.sh {{ cce_owner }} {{ config_item }}"
         async: 1000
@@ -34,5 +63,17 @@
         copy:
           content: "{{ job_result.stdout }}"
           dest: "{{ status_stdout_filepath }}"
+  
+      - name: clear the sensitive file post configure
+        file:
+          path: "{{ ansible_env.HOME }}/.setenv_cce_secrets.sh"
+          state: absent
+        when: config_item == "creds"
+
+      - name: clear the sensitive file post configure
+        file:
+          path: "{{ ansible_env.HOME }}/sag_licenses.zip" 
+          state: absent
+        when: config_item == "licenses"
 
     when: stat_cceConfigAlreadyDone.stat.exists == false

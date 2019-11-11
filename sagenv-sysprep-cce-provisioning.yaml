@@ -14,4 +14,5 @@
   roles:
     - role: prepare-cce-provisoning
   tags:
+    - sysprep
     - sysprep_cce

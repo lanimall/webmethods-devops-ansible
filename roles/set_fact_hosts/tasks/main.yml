@@ -1,0 +1,44 @@
+---
+
+  - name: Print the target ansible host aliases to the console.
+    debug: var=ansible_group_name
+
+  - name: Get hosts from group name
+    set_fact:
+      ansible_hosts: "{{ groups[ansible_group_name] }}"
+    when: ansible_group_name is defined
+
+  - name: Clear the all_ansible_hosts_list fact
+    set_fact:
+      all_ansible_hosts_list: []
+    when: ansible_hosts_lookup_clear_first or all_ansible_hosts_list is not defined
+
+  - name: Print the all_ansible_hosts_list
+    debug: var=all_ansible_hosts_list
+
+  - name: Print the ansible_hosts found in group
+    debug: var=ansible_hosts
+  
+  - name: Build a list of all the hosts based on ansible aliases
+    set_fact:
+      all_ansible_hosts_list: "{{ all_ansible_hosts_list }} + [ '{{ ansible_hosts_add_prefix }}{{ hostvars[item].ansible_host }}{{ ansible_hosts_add_suffix }}' ]"
+    with_items: "{{ ansible_hosts }}"
+    when: ansible_hosts_lookup_mode == "alias" and ansible_hosts is defined and (ansible_hosts|length>0)
+
+  - name: Build a list of all the hosts that are not aliases
+    set_fact:
+      all_ansible_hosts_list: "{{ all_ansible_hosts_list }} + [ '{{ ansible_hosts_add_prefix }}{{ item }}{{ ansible_hosts_add_suffix }}' ]"
+    with_items: "{{ ansible_hosts }}"
+    when: ansible_hosts_lookup_mode == "host" and ansible_hosts is defined and (ansible_hosts|length>0)
+
+  - name: Print the final fact all_ansible_hosts_list
+    debug: var=all_ansible_hosts_list
+
+  - name: set facts
+    set_fact:
+      all_ansible_hosts_string: "{{ all_ansible_hosts_list | join(ansible_hosts_join) }}"
+    when: ansible_hosts_join is defined
+
+  - name: Print the final fact all_ansible_hosts_string
+    debug: var=all_ansible_hosts_string
+    when: ansible_hosts_join is defined

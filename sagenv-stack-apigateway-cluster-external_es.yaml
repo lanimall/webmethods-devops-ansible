@@ -1,0 +1,201 @@
+---
+
+################################################################
+## Sys Prep
+################################################################
+
+## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
+- import_playbook: sagenv-sysprep-base.yaml
+  vars:
+    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+  tags:
+    - sysprep
+
+## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+  tags:
+    - sysprep
+
+## ensures that CCE is installed and well
+- import_playbook: sagenv-cce-setup.yaml
+  tags:
+    - sysprep
+
+################################################################
+## SPM provisioning
+################################################################
+
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: spm
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: spm
+    cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+    cce_provisioning_stack_validation_ports:
+      - 8092
+      - 8093
+  tags:
+    - sysprep
+    - install
+    - install-spm
+
+################################################################
+## internal data store provisioning
+################################################################
+
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: internaldatastore
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigwinternaldatastore
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: internaldatastore
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_validation_ports:
+      - 9240
+      - 9340
+  tags:
+    - install
+    - install-internaldatastore
+
+##some post install items for elastic search
+- hosts: all_webmethods_apigwinternaldatastore
+  become: true
+  roles:
+    - role: elasticsearch-update-seeds
+      vars:
+        elasticsearch_host_aliases: "{{ groups['all_webmethods_apigwinternaldatastore'] }}"
+    - role: elasticsearch-cleardata  
+  tags:
+    - install
+    - install-internaldatastore
+    - postinstall-internaldatastore
+
+################################################################
+## terracotta provisioning
+################################################################
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: terracotta_cluster
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_TERRACOTTA"
+        value: "Terracotta_v4.x_TerraCotta_v4_Clustering_IS_terracotta-license.key"
+    cce_provisioning_stack_product_names: terracotta
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: true
+    cce_provisioning_stack_validation_ports:
+      - 9530
+      - 9540
+  tags:
+    - install
+    - install-terracotta
+
+################################################################
+## gateway provisioning
+################################################################
+
+##construct the TSA_URL based on the known tarracotta group
+- hosts: all_webmethods_cce
+  become: true
+  become_user: "{{ cce_owner }}"
+  tasks:
+    - import_role: 
+        name: set_fact_hosts
+      vars:
+        ansible_group_name: "all_webmethods_apigateway"
+        ansible_hosts_lookup_mode: "alias"
+        ansible_hosts_lookup_clear_first: true
+        ansible_hosts_add_suffix: ":9510"
+        ansible_hosts_join: ","
+    - name: assign hosts string to tsa_target_url variable
+      set_fact:
+        tsa_target_url: "{{ all_ansible_hosts_string }}"
+    - import_role: 
+        name: set_fact_hosts
+      vars:
+        ansible_group_name: "all_webmethods_apigwinternaldatastore"
+        ansible_hosts_lookup_mode: "alias"
+        ansible_hosts_lookup_clear_first: true
+        ansible_hosts_add_suffix: ":9240"
+        ansible_hosts_join: ","
+    - name: assign hosts string to elasticsearch_target_url variable
+      set_fact:
+        elasticsearch_target_url: "{{ all_ansible_hosts_string }}"
+  tags:
+    - install
+    - install-apigateway
+
+- import_playbook: sagenv-stack-webmethods-generic.yaml
+  vars:
+    cce_provisioning_stack_name: apigateway_cluster
+    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_APIGW"
+        # value: "*_YAIAA_10.1_*_*"
+        value: "0000489920_YAIAA_10.1_ANY_AIX"
+      - name: "LICENSE_KEY_ALIAS_TERRACOTTA"
+        # value: "*TerraCotta_v4_Clustering_IS_terracotta-license.key"
+        value: "Terracotta_v4.x_TerraCotta_v4_Clustering_IS_terracotta-license.key"
+      - name: "TSA_URL"
+        value: "{{ tsa_target_url }}"
+      - name: "ELASTICSEARCH_URL"
+        value: "{{ elasticsearch_target_url }}"
+    cce_provisioning_stack_product_names: apigateway
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_validation_ports:
+      - 9072
+      - 5555
+  tags:
+    - install
+    - install-apigateway
+
+##some post install items for gateway  (stop local internal data store, update configs, restart gateway)
+- hosts: all_webmethods_apigateway
+  tasks:
+    - import_role: 
+        name: command-webmethods
+      vars:
+        command: "stop"
+        product_name: "internaldatastore"
+      become: true
+      become_user: "{{ webmethods_user }}"
+    - import_role: 
+        name: set_fact_hosts
+      vars:
+        ansible_group_name: "all_webmethods_apigwinternaldatastore"
+        ansible_hosts_lookup_mode: "alias"
+        ansible_hosts_lookup_clear_first: true
+        ansible_hosts_add_suffix: ":9240"
+        ansible_hosts_join: ","
+    - name: assign hosts string to elasticsearch_target_url variable
+      set_fact:
+        elasticsearch_target_url: "{{ all_ansible_hosts_string }}"
+    - import_role: 
+        name: apigateway-update-configs
+      vars:
+        apigateway_elasticsearch_configs_toupdate:
+          "pg.gateway.elasticsearch.autostart": "false"
+          "pg.gateway.elasticsearch.hosts": "{{ elasticsearch_target_url }}"
+      become: true
+      become_user: "{{ webmethods_user }}"
+    - import_role: 
+        name: service-webmethods
+      vars:
+        command: "restart"
+        product_name: "apigateway"
+      become: true
+    - name: Wait for validation ports to become open on the host, don't start checking for 10 seconds
+      wait_for:
+        port: "{{ item }}"
+        delay: 10
+        timeout: 300
+      with_items:
+        - 9072
+        - 5555
+  tags:
+    - install
+    - install-apigateway
+    - postinstall-apigateway

@@ -18,13 +18,19 @@
       - name: Print debug message
         debug:
           msg: "Service {{ service_name }} not found. Will create."
+        when: force_create is not defined or force_create == false
+
+      - name: Print debug message
+        debug:
+          msg: "Service {{ service_name }} is getting re-created because force_create = true"
+        when: force_create is defined and force_create
 
       - name: Check for wM daemon script
         stat: 
           path: "{{ webmethods_install_dir }}/common/bin/daemon.sh"
         register: stat_wmdDaemonFile
 
-      - name: Use 'argv' to send a command as a list
+      - name: Create service using daemon script + specific PID file
         command:
           argv:
             - "{{ webmethods_install_dir }}/common/bin/daemon.sh"
@@ -36,14 +42,31 @@
             - "{{ service_name }}"
             - "-T"
             - "{{ service_type }}"
-        when: stat_wmdDaemonFile.stat.exists
-    when: ansible_facts.services[service_name_index] is not defined
+            - "-P"
+            - "{{ service_pidfile }}"
+        when: stat_wmdDaemonFile.stat.exists and service_pidfile is defined and service_pidfile != ""
+      
+      - name: Create service using daemon script with general defaults
+        command:
+          argv:
+            - "{{ webmethods_install_dir }}/common/bin/daemon.sh"
+            - "-f"
+            - "{{ service_exec_filepath }}"
+            - "-u"
+            - "{{ service_user }}"
+            - "-n"
+            - "{{ service_name }}"
+            - "-T"
+            - "{{ service_type }}"
+        when: stat_wmdDaemonFile.stat.exists and (service_pidfile is not defined or service_pidfile == "")
+
+    when: (force_create is defined and force_create) or ansible_facts.services[service_name_index] is not defined
 
   - name: Do nothing if service exists
     block:
       - name: Print debug message
         debug:
           msg: "Service {{ service_name }} is already there. do nothing."
-    when: ansible_facts.services[service_name_index] is defined
+    when: (force_create is not defined or force_create == false) and ansible_facts.services[service_name_index] is defined
 
     

@@ -3,7 +3,7 @@
 - hosts: localhost
   become: true
   tasks:
-    - name: Temp - Copy automation key from automation user to centos fro easy ansible running
+    - name: Temp?? Copy automation key from automation user to centos fro easy ansible running
       copy:
         src: /opt/sagenvlnxuser/.ssh/id_rsa
         dest: /home/centos/.ssh/
@@ -11,9 +11,16 @@
         group: centos
         mode: '0600'
         remote_src: yes
-  roles:
-    - role: create-known-hosts
+    
+    - name: Non Root tasks
+      block:
+        ## this is to make sure we gather the facts again as the user {{ cce_owner }} in order to get a valid {{ ansible_env.HOME }}
+        - setup:
+        - import_role: 
+            name: create-known-hosts
+      become: false
   tags:
+    - sysprep
     - setup_ansible
 
 - hosts: "{{ inventory_groupnames }}"
@@ -24,4 +31,5 @@
     - role: server-hardening
     
   tags:
+    - sysprep
     - sysprep_linux

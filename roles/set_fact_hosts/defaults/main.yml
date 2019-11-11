@@ -1,0 +1,8 @@
+---
+
+ansible_group_name: ""
+ansible_hosts_lookup_mode: "alias"
+ansible_hosts_lookup_clear_first: true
+ansible_hosts_add_prefix: ""
+ansible_hosts_add_suffix: ""
+ansible_hosts_join: ""
