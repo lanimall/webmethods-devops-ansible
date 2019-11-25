@@ -1,0 +1,14 @@
+---
+
+## OS settings
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_abe }}"
+
+limits_user: "{{ webmethods_user }}"
+limits_openfiles: "250000"
+limits_processes: "20000"
+
+## default provisonning values
+cce_provisioning_stack_postinstall_service_setup: true
+cce_provisioning_stack_postinstall_webmethods: true
+cce_provisioning_stack_validation_ports_timeout: 900
+cce_provisioning_stack_product_envs_by_name: {}

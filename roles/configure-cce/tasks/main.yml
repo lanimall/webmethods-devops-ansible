@@ -4,7 +4,7 @@
     file:
       path: "{{ status_success_filepath }}"
       state: absent
-    when: configure_cce_force
+    when: configure_cce_force == true
 
   - name: Check if CCE config was already done for config {{ config_item }}
     stat: 

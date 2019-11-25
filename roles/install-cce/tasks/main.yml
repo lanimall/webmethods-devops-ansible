@@ -1,11 +1,19 @@
 ---
 
 ### here we could create the steps to re-install cce if force = true
+  - name: set facts
+    set_fact:
+      install_cce: false
 
   - name: Check if CCE install was already done
     stat: 
       path: "{{ ansible_env.HOME }}/provision_ccserver.status.success"
     register: stat_cceInstallAlreadyDone
+
+  - name: set facts
+    set_fact:
+      install_cce: true
+    when: stat_cceInstallAlreadyDone.stat.exists == true
 
   - name: Install CCE only if {{ ansible_env.HOME }}/provision_ccserver.status.success does not exist.
     block:

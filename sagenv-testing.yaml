@@ -1,0 +1,20 @@
+---
+
+- hosts: commandcentral
+  become: true
+  become_user: "{{ cce_owner }}"
+  vars:
+    cce_provisioning_stack_inventory_pattern: "all_webmethods:!commandcentral"
+  tasks:
+    - name: set initial facts
+      set_fact:
+        cce_provisioning_stack_hosts: []
+    - name: Build a list of the inventory hosts
+      set_fact:
+        cce_provisioning_stack_hosts: "{{ cce_provisioning_stack_hosts }} + ['{{ item }}']"
+      with_inventory_hostnames:
+        - "{{ cce_provisioning_stack_inventory_pattern }}"
+
+    - name: show all the hosts matching the pattern, i.e. all but the group www
+      debug:
+        var: cce_provisioning_stack_hosts

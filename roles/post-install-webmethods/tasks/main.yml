@@ -4,7 +4,7 @@
     file:
       path: "{{ postinstall_file_marker }}"
       state: absent
-    when: postinstall_force
+    when: postinstall_force|bool
 
   - name: Check if the post install was already done for this
     stat: 
@@ -30,5 +30,5 @@
       - name: Reboot the machine ONLY IF do_reboot set to true ({{do_reboot}})
         reboot:
           reboot_timeout: 1000
-        when: do_reboot
+        when: do_reboot|bool
     when: stat_ccePostInstallAlreadyDone.stat.exists == false

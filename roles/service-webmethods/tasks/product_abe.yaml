@@ -1,0 +1,6 @@
+---
+
+- import_tasks: "command_{{ command }}.yaml"
+  vars:
+    service_exec_filepath: ""
+    service_name: ""

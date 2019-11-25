@@ -1,3 +1,0 @@
----
-
-sys_open_ports: "{{ sys_open_ports_jenkins }}"

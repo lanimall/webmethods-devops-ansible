@@ -11,8 +11,6 @@
         groupid: "{{ webmethods_groupid }}"
         authorized_sshkey_path: "{{ webmethods_internal_sshkey_pub }}"
     - role: prepare-wminstall
-    - role: update-firewall
-    - role: update-os
   tags:
     - sysprep
     - sysprep_webmethods

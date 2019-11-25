@@ -17,6 +17,7 @@
     
     - name: Print command results to the console.
       debug: var=cmd_result
+      when: stat_shutdown.stat.exists 
 
     when: command is defined and command == "stop"
 
@@ -37,5 +38,6 @@
     
     - name: Print command results to the console.
       debug: var=cmd_result
+      when: stat_startup.stat.exists 
 
     when: command is defined and command == "start"

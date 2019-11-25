@@ -1,0 +1,52 @@
+---
+
+## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
+- import_playbook: sagenv-sysprep-base.yaml
+  vars:
+    inventory_groupnames: "all_jenkins"
+  tags:
+    - sysprep
+    - sysprep-base
+
+- hosts: localhost
+  tasks:
+    - name: Install jenkins role from ansible-galaxy
+      command:
+        argv:
+          - "ansible-galaxy"
+          - install
+          - "--roles-path"
+          - "~/.ansible/roles"
+          - geerlingguy.jenkins,3.8.0
+  tags:
+    - install
+    - install-jenkins
+
+- hosts: all_jenkins
+  become: true
+  tasks:
+    - name: Copy secrets file to target
+      copy:
+        src: "{{ jenkins_admin_password_file_local }}"
+        dest: "{{ jenkins_admin_password_file_dest }}"
+        mode: '0600'
+        remote_src: no
+
+    - name: Get Jenkins admin password from file.
+      slurp:
+        src: "{{ jenkins_admin_password_file_dest }}"
+      register: adminpasswordfile
+      no_log: true
+      when: jenkins_admin_password_file_dest != ""
+
+    - name: Set Jenkins admin password fact.
+      set_fact:
+        jenkins_admin_password: "{{ adminpasswordfile['content'] | b64decode | trim }}"
+      no_log: true
+    
+    - name: Install Jenkins with role
+      include_role:
+        name: geerlingguy.jenkins
+  tags:
+    - install
+    - install-jenkins

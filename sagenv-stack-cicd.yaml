@@ -4,50 +4,17 @@
 ## Sys Prep
 ################################################################
 
-## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
-- import_playbook: sagenv-sysprep-base.yaml
-  vars:
-    inventory_groupnames: all_jenkins,all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
-  tags:
-    - sysprep
-
-## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
-- import_playbook: sagenv-sysprep-webmethods.yaml
-  vars:
-    inventory_groupnames: all_webmethods_deployer,all_webmethods_isvaltesting,all_webmethods_abe
-  tags:
-    - sysprep
-
 ## ensures that CCE is installed and well
-- import_playbook: sagenv-cce-setup.yaml
+- import_playbook: sagenv-sysprep-cce.yaml
   tags:
     - sysprep
+    - sysprep-cce
 
 ################################################################
 ## Jenkins provisoning
 ################################################################
 
-- hosts: localhost
-  tasks:
-    - name: Install jenkins role from ansible-galaxy
-      command:
-        argv:
-          - "ansible-galaxy"
-          - install
-          - geerlingguy.jenkins,3.8.0
-  tags:
-    - sysprep
-
-- hosts: all_jenkins
-  become: true
-  tasks:
-    - name: Install Jenkins with role
-      include_role:
-        name: geerlingguy.jenkins
-      vars:
-        jenkins_hostname: jenkins.{{ env_url_domain }}
-        jenkins_package_state: present
-        jenkins_version: "2.190.2" 
+- import_playbook: sagenv-common-jenkins.yaml
   tags:
     - install
     - install-jenkins
@@ -56,62 +23,78 @@
 ## SPM provisioning
 ################################################################
 
-# - import_playbook: sagenv-stack-webmethods-generic.yaml
+# - import_playbook: sagenv-common-webmethods.yaml
 #   vars:
 #     cce_provisioning_stack_name: spm
-#     cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+#     cce_provisioning_stack_inventory_pattern: deployer,isvaltesting,abe
 #     cce_provisioning_stack_params: {}
 #     cce_provisioning_stack_product_names: spm
-#     cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+#     cce_provisioning_stack_product_envs_by_name: {}
 #     cce_provisioning_stack_validation_ports:
 #       - 8092
 #       - 8093
 #   tags:
-#     - sysprep
 #     - install
 #     - install-spm
 
-# ##that ensures that the nodes have SPM set properly 
-# - import_playbook: sagenv-stack-webmethods-generic.yaml
-#   vars:
-#     cce_provisioning_stack_name: spm
-#     cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
-#     cce_provisioning_stack_params: {}
-#     cce_provisioning_stack_product_names: spm
-#     cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
-#   tags:
-#     - install
-#     - install-spm
+################################################################
+## abe provisioning
+################################################################
 
-# - import_playbook: sagenv-stack-webmethods-generic.yaml
-#   vars:
-#     cce_provisioning_stack_name: deployer
-#     cce_provisioning_stack_inventory_groupnames: all_webmethods_deployer
-#     cce_provisioning_stack_params: {}
-#     cce_provisioning_stack_product_names: integrationserver
-#     cce_provisioning_stack_product_envs_by_name: {}
-#   tags:
-#     - install
-#     - install-deployer
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: abe
+    cce_provisioning_stack_inventory_pattern: abe
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: abe
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_service_setup: false
+  tags:
+    - install
+    - install-abe
 
-# - import_playbook: sagenv-stack-webmethods-generic.yaml
-#   vars:
-#     cce_provisioning_stack_name: is_stateless
-#     cce_provisioning_stack_inventory_groupnames: all_webmethods_isvaltesting
-#     cce_provisioning_stack_params: {}
-#     cce_provisioning_stack_product_names: integrationserver
-#     cce_provisioning_stack_product_envs_by_name: {}
-#   tags:
-#     - install
-#     - install-integrationserver
+################################################################
+## IS wM test suite testing provisioning
+################################################################
 
-# - import_playbook: sagenv-stack-webmethods-generic.yaml
-#   vars:
-#     cce_provisioning_stack_name: abe
-#     cce_provisioning_stack_inventory_groupnames: all_webmethods_abe
-#     cce_provisioning_stack_params: {}
-#     cce_provisioning_stack_product_names:
-#     cce_provisioning_stack_product_envs_by_name: {}
-#   tags:
-#     - install
-#     - install-abe
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: is_stateless
+    cce_provisioning_stack_inventory_pattern: isvaltesting
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_IS"
+        value: "*_PIE_10.*_*_*"
+      - name: "DEFAULT_ADMIN_PASSWORD_IS"
+        value: "SomeStrongPwd123!"
+    cce_provisioning_stack_product_names: integrationserver
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 5555
+      - 9999
+  tags:
+    - install
+    - install-isvaltesting
+
+################################################################
+## deployer provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: deployer
+    cce_provisioning_stack_inventory_pattern: deployer
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_IS"
+        value: "*_PIE_10.*_*_*"
+      - name: "DEFAULT_ADMIN_PASSWORD_IS"
+        value: "SomeStrongPwd123!"
+    cce_provisioning_stack_product_names: deployer
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 5555
+      - 9999
+  tags:
+    - install
+    - install-deployer

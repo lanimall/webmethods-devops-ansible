@@ -4,12 +4,22 @@
 ### - service_name
 ### - service_env
 
+  - name: fail if service_name not specified
+    fail: 
+      msg: "service_name not specified...cannot create."
+    when: service_name is not defined or service_name == ""
+
   - name: get service facts
     service_facts:
 
   - name: Format service name to {{ service_name }}.service for service_facts lookup
     set_fact:
       service_name_index: "{{ service_name }}.service"
+
+  - name: fail if service is not found
+    fail: 
+      msg: "service {{ service_name }} not found..."
+    when: ansible_facts.services[service_name_index] is not defined
 
   - name: Perform service overrides if it exists
     block:
@@ -18,10 +28,16 @@
           path: /etc/systemd/system/{{ service_name }}.service.d
           state: directory
 
-      - name: create override file first
+      - name: Check if override file already exists
+        stat: 
+          path: "/etc/systemd/system/{{ service_name }}.service.d/override.conf"
+        register: stat_overrideFile
+
+      - name: create override file first if it does not exist
         file:
           path: /etc/systemd/system/{{ service_name }}.service.d/override.conf
           state: touch
+        when: stat_overrideFile.stat.exists == false
 
       - name: Populate systemd override if the service_env are defined
         template:

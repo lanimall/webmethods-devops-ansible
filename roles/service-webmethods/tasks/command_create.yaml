@@ -6,6 +6,11 @@
 ### - service_user
 ### - service_type
 
+  - name: fail if service_name not specified
+    fail: 
+      msg: "service_name not specified...cannot create."
+    when: service_name is not defined or service_name == ""
+
   - name: get service facts
     service_facts:
 
@@ -29,6 +34,11 @@
         stat: 
           path: "{{ webmethods_install_dir }}/common/bin/daemon.sh"
         register: stat_wmdDaemonFile
+
+      - name: fail if service_exec_filepath not specified
+        fail: 
+          msg: "service_exec_filepath not specified...cannot create."
+        when: service_exec_filepath is not defined or service_exec_filepath == ""
 
       - name: Create service using daemon script + specific PID file
         command:

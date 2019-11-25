@@ -1,7 +1,7 @@
 ---
 
 ##some post install items for gateway  (stop local internal data store, update configs, restart gateway)
-- hosts: all_webmethods_apigateway
+- hosts: apigateway
   tasks:
     - import_role: 
         name: command-webmethods

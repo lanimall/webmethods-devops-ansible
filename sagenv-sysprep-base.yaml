@@ -29,7 +29,8 @@
     - role: base-packages
     - role: update-packages
     - role: server-hardening
-    
+    - role: update-firewall
+    - role: update-os 
   tags:
     - sysprep
     - sysprep_linux

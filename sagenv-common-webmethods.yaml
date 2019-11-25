@@ -2,80 +2,72 @@
 
 ### minimum params:
 ### cce_provisioning_stack_name (type: string)
-### cce_provisioning_stack_inventory_groupnames (type: string)
+### cce_provisioning_stack_inventory_pattern (type: string)
 ### cce_provisioning_stack_params (type: dictionary)
 ### cce_provisioning_stack_product_names (type: list)
 ### cce_provisioning_stack_product_envs_by_name (type: dictionary)
 ### cce_provisioning_stack_postinstall_reboot (type: boolean)
 ### cce_provisioning_stack_validation_ports (type: list)
 
-- hosts: all_webmethods_cce
+- hosts: commandcentral
   become: true
   tasks:
     - name: Provisionning {{ cce_provisioning_stack_name }}
-      command: echo "Provisioning {{ cce_provisioning_stack_name }} on inventory groups {{ cce_provisioning_stack_inventory_groupnames }}"
+      command: echo "Provisioning {{ cce_provisioning_stack_name }} on inventory groups {{ cce_provisioning_stack_inventory_pattern | default('undefined') }}"
     - name: Print the params
       debug:
         msg: 
         - "Running webmethods producct provisoning with:"
         - "cce_provisioning_stack_name = {{ cce_provisioning_stack_name | default('undefined') }}"
-        - "cce_provisioning_stack_inventory_groupnames = {{ cce_provisioning_stack_inventory_groupnames | default('undefined') }}"
+        - "cce_provisioning_stack_inventory_pattern = {{ cce_provisioning_stack_inventory_pattern | default('undefined') }}"
         - "cce_provisioning_stack_params = {{ cce_provisioning_stack_params | default('undefined') }}"
         - "cce_provisioning_stack_product_names = {{ cce_provisioning_stack_product_names | default('undefined') }}"
         - "cce_provisioning_stack_product_envs_by_name = {{ cce_provisioning_stack_product_envs_by_name | default('undefined') }}"
         - "cce_provisioning_stack_postinstall_reboot = {{ cce_provisioning_stack_postinstall_reboot | default('undefined') }}"
         - "cce_provisioning_stack_validation_ports = {{ cce_provisioning_stack_validation_ports | default('undefined') }}"
+        - "cce_provisioning_stack_validation_ports_timeout = {{ cce_provisioning_stack_validation_ports_timeout | default('undefined') }}"
+    - import_role: 
+        name: prepare-cce-provisoning
 
-- hosts: "{{ cce_provisioning_stack_inventory_groupnames }}"
-  tasks:
-    - name: Wait for SPM ports to become open on the hosts
-      wait_for:
-        port: "{{ item }}"
-        timeout: 300
-      with_items:
-        - 8092
-        - 8093
-      when: cce_provisioning_stack_name != "spm"
+## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
+- import_playbook: sagenv-sysprep-base.yaml
+  vars:
+    inventory_groupnames: "{{ cce_provisioning_stack_inventory_pattern }}"
+  tags:
+    - sysprep
+    - sysprep-base
+
+## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: "{{ cce_provisioning_stack_inventory_pattern }}"
+  tags:
+    - sysprep
+    - sysprep-webmethods
 
 ##install stack
-- hosts: all_webmethods_cce
+- hosts: commandcentral
   become: true
   become_user: "{{ cce_owner }}"
   pre_tasks:
     - name: set initial facts
       set_fact:
-        cce_provisioning_stack_inventory_groupnames_hosts: []
+        cce_provisioning_stack_host_aliases: []
     - name: Build a list of the inventory hosts
       set_fact:
-        cce_provisioning_stack_inventory_groupnames_hosts: "{{ cce_provisioning_stack_inventory_groupnames_hosts }} + {{ groups[item] }}"
-      with_items: "{{ cce_provisioning_stack_inventory_groupnames.split(',') }}"
-      when: cce_provisioning_stack_inventory_groupnames is defined
+        cce_provisioning_stack_host_aliases: "{{ cce_provisioning_stack_host_aliases }} + ['{{ item }}']"
+      with_inventory_hostnames:
+        - "{{ cce_provisioning_stack_inventory_pattern }}"
   tasks:
     - import_role: 
         name: provision-with-cce
       vars:
-        cce_provisioning_target_host_aliases: "{{ cce_provisioning_stack_inventory_groupnames_hosts }}"
+        cce_provisioning_target_host_aliases: "{{ cce_provisioning_stack_host_aliases }}"
         cce_provisioning_install_stackname: "{{ cce_provisioning_stack_name }}"
         cce_provisioning_install_params: "{{ cce_provisioning_stack_params }}"
   tags:
     - "sagenv-stack-webmethods-generic.install.{{ cce_provisioning_stack_name }}"
 
-##stop SPM process before installing and starting the service
-- hosts: "{{ cce_provisioning_stack_inventory_groupnames }}"
-  tasks:
-    - name: Root tasks
-      block:
-        - import_role: 
-            name: command-webmethods
-          vars:
-            command: "stop"
-            product_name: "{{ cce_provisioning_stack_product_names }}"
-      become: true
-      become_user: "{{ webmethods_user }}"
-    - name: Root tasks
-      block:
-        - import_role: 
-            name: post-install-webmethods
 
         # loopiong over roles, as it's possible a single CCE stack could create multiple products that need to be set with a service
         # - name: myrole
@@ -87,23 +79,49 @@
         #   vars:
         #     thing: "{{ item }}"
 
+##stop process before installing and starting the service
+- hosts: "{{ cce_provisioning_stack_inventory_pattern }}"
+  tasks:
+    - name: Root tasks
+      block:
+        - name: Validate that SPM is running fine at this point
+          wait_for:
+            port: "{{ item }}"
+            timeout: 300
+          with_items:
+            - 8092
+            - 8093
+        - import_role: 
+            name: post-install-webmethods
+          when: cce_provisioning_stack_postinstall_webmethods|bool
         - import_role: 
             name: service-webmethods
           vars:
             command: "create"
             product_name: "{{ cce_provisioning_stack_product_names }}"
             force_create: false
+          when: cce_provisioning_stack_postinstall_service_setup|bool
         - import_role: 
             name: service-webmethods
           vars:
             command: "update"
             product_name: "{{ cce_provisioning_stack_product_names }}"
             service_env: "{{ cce_provisioning_stack_product_envs_by_name }}"
+          when: cce_provisioning_stack_postinstall_service_setup|bool
+        - import_role: 
+            name: command-webmethods
+          vars:
+            command: "stop"
+            product_name: "{{ cce_provisioning_stack_product_names }}"
+          become: true
+          become_user: "{{ webmethods_user }}"
+          when: cce_provisioning_stack_postinstall_service_setup|bool
         - import_role: 
             name: service-webmethods
           vars:
             command: "restart"
             product_name: "{{ cce_provisioning_stack_product_names }}"
+          when: cce_provisioning_stack_postinstall_service_setup|bool
         - name: "Reboot the machine ONLY IF postinstall_reboot set to true"
           reboot:
             reboot_timeout: 1000
@@ -112,7 +130,7 @@
           wait_for:
             port: "{{ item }}"
             delay: 10
-            timeout: 300
+            timeout: "{{ cce_provisioning_stack_validation_ports_timeout }}"
           with_items: "{{ cce_provisioning_stack_validation_ports }}"
           when: cce_provisioning_stack_validation_ports is defined
       become: true

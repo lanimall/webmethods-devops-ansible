@@ -1,8 +1,0 @@
----
-
-## some webmethods settings
-webmethods_spm_stop: "{{ webmethods_install_dir }}/InternalDataStore/bin/shutdown.sh"
-webmethods_spm_start: "{{ webmethods_install_dir }}/InternalDataStore/bin/startup.sh"
-
-webmethods_internaldatastore_stop: "{{ webmethods_install_dir }}/InternalDataStore/bin/shutdown.sh"
-webmethods_internaldatastore_start: "{{ webmethods_install_dir }}/InternalDataStore/bin/startup.sh"

@@ -3,61 +3,76 @@
 
 - import_playbook: sagenv-sysprep-base.yaml
   vars:
-    inventory_groupnames: all_webmethods_cce
+    inventory_groupnames: commandcentral
   tags:
     - sysprep
 
 - import_playbook: sagenv-sysprep-webmethods.yaml
   vars:
-    inventory_groupnames: all_webmethods_cce
+    inventory_groupnames: commandcentral
   tags:
     - sysprep
 
-- import_playbook: sagenv-sysprep-cce-provisioning.yaml
-  tags:
-    - sysprep
-
-- hosts: all_webmethods_cce
+- hosts: commandcentral
   tasks:
     - name: Root tasks
       block:
         - import_role: 
-            name: update-firewall
+            name: prepare-cce-provisoning
         - import_role: 
             name: create-known-hosts
           vars:
             ssh_known_hosts_file: /etc/ssh/ssh_known_hosts
       become: true
+      tags:
+        - sysprep
     - name: Non Root tasks
       block:
         ## this is to make sure we gather the facts again as the user {{ cce_owner }} in order to get a valid {{ ansible_env.HOME }}
         - setup:
+        - name: set facts
+          set_fact:
+            install_cce: false
         - import_role: 
             name: create-known-hosts
           vars:
             ssh_known_hosts_file: default
+          tags:
+            - sysprep
         - import_role: 
             name: install-cce
+          tags:
+            - install
         - import_role: 
             name: configure-cce
           vars:
             config_item: tuning
+          tags:
+            - configure
         - import_role: 
             name: configure-cce
           vars:
             config_item: creds
+          tags:
+            - configure
         - import_role: 
             name: configure-cce
           vars:
             config_item: licenses
+          tags:
+            - configure
         - import_role: 
             name: configure-cce
           vars:
             config_item: repos
+          tags:
+            - configure
         - import_role: 
             name: configure-cce
           vars:
             config_item: update
+          tags:
+            - configure
       become: true
       become_user: "{{ cce_owner }}"
   post_tasks:
@@ -66,15 +81,15 @@
         - import_role: 
             name: post-install-webmethods
           vars:
-            do_reboot: true  
-        - name: Wait for CCE ports to become open on the host, don't start checking for 10 seconds
+            postinstall_force: false
+            do_reboot: true
+        - name: Wait for CCE ports to become open on the host
           wait_for:
             port: "{{ item }}"
-            delay: 10
-            timeout: 300
+            timeout: 600
           with_items:
             - 8090
             - 8091
       become: true
-  tags:
-    - install_cce
+      tags:
+        - post-install

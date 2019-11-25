@@ -1,0 +1,23 @@
+---
+
+## OS settings
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_internaldatastore }}"
+
+limits_user: "{{ webmethods_user }}"
+limits_openfiles: "250000"
+limits_processes: "20000"
+
+sysctl_config:
+  vm.max_map_count: "262144"
+  fs.file-max: "{{ limits_openfiles }}"
+
+# cce_provisioning_stack_product_envs_by_name:
+#   spm:
+#     LimitNOFILE: "{{ limits_openfiles }}"
+#     LimitNPROC: "{{ limits_processes }}"
+#   internaldatastore:
+#     LimitNOFILE: "{{ limits_openfiles }}"
+#     LimitNPROC: "{{ limits_processes }}"
+#     LimitAS: "infinity"
+#     LimitFSIZE: "infinity"
+#     LimitMEMLOCK: "infinity"

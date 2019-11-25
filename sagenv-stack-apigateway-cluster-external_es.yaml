@@ -4,36 +4,41 @@
 ## Sys Prep
 ################################################################
 
-## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
-- import_playbook: sagenv-sysprep-base.yaml
-  vars:
-    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
-  tags:
-    - sysprep
+## these sysprep will be done for each pieces
 
-## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
-- import_playbook: sagenv-sysprep-webmethods.yaml
-  vars:
-    inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
-  tags:
-    - sysprep
+# ## ensures that target machines are prepped from sys standpoint (packages, firewall, OS, etc...)
+# - import_playbook: sagenv-sysprep-base.yaml
+#   vars:
+#     inventory_groupnames: apigateway,apigwinternaldatastore,apiportal
+#   tags:
+#     - sysprep
+#     - sysprep-base
+
+# ## ensures that target machines are prepped for webmethods stuff (disk, users, etc...)
+# - import_playbook: sagenv-sysprep-webmethods.yaml
+#   vars:
+#     inventory_groupnames: apigateway,apigwinternaldatastore,apiportal
+#   tags:
+#     - sysprep
+#     - sysprep-webmethods
 
 ## ensures that CCE is installed and well
-- import_playbook: sagenv-cce-setup.yaml
+- import_playbook: sagenv-sysprep-cce.yaml
   tags:
     - sysprep
+    - sysprep-cce
 
 ################################################################
 ## SPM provisioning
 ################################################################
 
-- import_playbook: sagenv-stack-webmethods-generic.yaml
+- import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_stack_name: spm
-    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway,all_webmethods_apigwinternaldatastore,all_webmethods_apiportal
+    cce_provisioning_stack_inventory_pattern: apigateway,apigwinternaldatastore,apiportal
     cce_provisioning_stack_params: {}
     cce_provisioning_stack_product_names: spm
-    cce_provisioning_stack_product_envs_by_name: "{{ webmethods_spm_service_env }}"
+    cce_provisioning_stack_product_envs_by_name: {}
     cce_provisioning_stack_validation_ports:
       - 8092
       - 8093
@@ -46,10 +51,10 @@
 ## internal data store provisioning
 ################################################################
 
-- import_playbook: sagenv-stack-webmethods-generic.yaml
+- import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_stack_name: internaldatastore
-    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigwinternaldatastore
+    cce_provisioning_stack_inventory_pattern: apigwinternaldatastore
     cce_provisioning_stack_params: {}
     cce_provisioning_stack_product_names: internaldatastore
     cce_provisioning_stack_product_envs_by_name: {}
@@ -61,12 +66,12 @@
     - install-internaldatastore
 
 ##some post install items for elastic search
-- hosts: all_webmethods_apigwinternaldatastore
+- hosts: apigwinternaldatastore
   become: true
   roles:
     - role: elasticsearch-update-seeds
       vars:
-        elasticsearch_host_aliases: "{{ groups['all_webmethods_apigwinternaldatastore'] }}"
+        elasticsearch_host_aliases: "{{ groups['apigwinternaldatastore'] }}"
     - role: elasticsearch-cleardata  
   tags:
     - install
@@ -76,13 +81,14 @@
 ################################################################
 ## terracotta provisioning
 ################################################################
-- import_playbook: sagenv-stack-webmethods-generic.yaml
+
+- import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_stack_name: terracotta_cluster
-    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway
+    cce_provisioning_stack_inventory_pattern: apigateway
     cce_provisioning_stack_params:
       - name: "LICENSE_KEY_ALIAS_TERRACOTTA"
-        value: "Terracotta_v4.x_TerraCotta_v4_Clustering_IS_terracotta-license.key"
+        value: "*TerraCotta_v4_Clustering_IS_terracotta-license.key"
     cce_provisioning_stack_product_names: terracotta
     cce_provisioning_stack_product_envs_by_name: {}
     cce_provisioning_stack_postinstall_reboot: true
@@ -98,14 +104,14 @@
 ################################################################
 
 ##construct the TSA_URL based on the known tarracotta group
-- hosts: all_webmethods_cce
+- hosts: commandcentral
   become: true
   become_user: "{{ cce_owner }}"
   tasks:
     - import_role: 
         name: set_fact_hosts
       vars:
-        ansible_group_name: "all_webmethods_apigateway"
+        ansible_group_name: "apigateway"
         ansible_hosts_lookup_mode: "alias"
         ansible_hosts_lookup_clear_first: true
         ansible_hosts_add_suffix: ":9510"
@@ -116,7 +122,7 @@
     - import_role: 
         name: set_fact_hosts
       vars:
-        ansible_group_name: "all_webmethods_apigwinternaldatastore"
+        ansible_group_name: "apigwinternaldatastore"
         ansible_hosts_lookup_mode: "alias"
         ansible_hosts_lookup_clear_first: true
         ansible_hosts_add_suffix: ":9240"
@@ -128,21 +134,21 @@
     - install
     - install-apigateway
 
-- import_playbook: sagenv-stack-webmethods-generic.yaml
+- import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_stack_name: apigateway_cluster
-    cce_provisioning_stack_inventory_groupnames: all_webmethods_apigateway
+    cce_provisioning_stack_inventory_pattern: apigateway
     cce_provisioning_stack_params:
       - name: "LICENSE_KEY_ALIAS_APIGW"
-        # value: "*_YAIAA_10.1_*_*"
-        value: "0000489920_YAIAA_10.1_ANY_AIX"
+        value: "*_YAIAA_10.*_*_*"
       - name: "LICENSE_KEY_ALIAS_TERRACOTTA"
-        # value: "*TerraCotta_v4_Clustering_IS_terracotta-license.key"
-        value: "Terracotta_v4.x_TerraCotta_v4_Clustering_IS_terracotta-license.key"
+        value: "*TerraCotta_v4_Clustering_IS_terracotta-license.key"
       - name: "TSA_URL"
         value: "{{ tsa_target_url }}"
       - name: "ELASTICSEARCH_URL"
         value: "{{ elasticsearch_target_url }}"
+      - name: "DEFAULT_ADMIN_PASSWORD_APIGW"
+        value: "SomeStrongPwd123!"
     cce_provisioning_stack_product_names: apigateway
     cce_provisioning_stack_product_envs_by_name: {}
     cce_provisioning_stack_validation_ports:
@@ -153,7 +159,7 @@
     - install-apigateway
 
 ##some post install items for gateway  (stop local internal data store, update configs, restart gateway)
-- hosts: all_webmethods_apigateway
+- hosts: apigateway
   tasks:
     - import_role: 
         name: command-webmethods
@@ -165,7 +171,7 @@
     - import_role: 
         name: set_fact_hosts
       vars:
-        ansible_group_name: "all_webmethods_apigwinternaldatastore"
+        ansible_group_name: "apigwinternaldatastore"
         ansible_hosts_lookup_mode: "alias"
         ansible_hosts_lookup_clear_first: true
         ansible_hosts_add_suffix: ":9240"

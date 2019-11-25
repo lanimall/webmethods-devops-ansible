@@ -3,27 +3,42 @@
   - name: Print the target ansible host aliases to the console.
     debug: var=cce_provisioning_target_host_aliases
   
-  - name: Print the target ansible hosts to the console.
-    debug: var=cce_provisioning_target_hosts
-
-  - name: Clear the all_hosts_computed fact
+  - name: Clear the all_host facts
     set_fact:
-      all_hosts_computed: []
+      all_hostaliases: []
+      all_hostnames: []
 
   - name: Build a list of all the hosts based on ansible aliases
     set_fact:
-      all_hosts_computed: "{{ all_hosts_computed }} + [ '{{ hostvars[item].ansible_host }}' ]"
+      all_hostaliases: "{{ all_hostaliases }} + [ '{{ item }}' ]"
+      all_hostnames: "{{ all_hostnames }} + [ '{{ hostvars[item].ansible_host }}' ]"
     with_items: "{{ cce_provisioning_target_host_aliases }}"
     when: cce_provisioning_target_host_aliases is defined and (cce_provisioning_target_host_aliases|length>0)
 
-  - name: Build a list of all the hosts based on ansible hosts
-    set_fact:
-      all_hosts_computed: "{{ all_hosts_computed }} + [ '{{ item }}' ]"
-    with_items: "{{ cce_provisioning_target_hosts }}"
-    when: cce_provisioning_target_hosts is defined and (cce_provisioning_target_hosts|length>0)
+  - name: Print the final target host aliases for stack {{ cce_provisioning_install_stackname }}
+    debug: var=all_hostaliases
+    
+  - name: Print the corresponding target hosts for stack {{ cce_provisioning_install_stackname }}
+    debug: var=all_hostnames
 
-  - name: Print the final target hosts for stack {{ cce_provisioning_install_stackname }}
-    debug: var=all_hosts_computed
+  - name: Clear the param file for tack {{ cce_provisioning_install_stackname }}
+    command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} {{ item.append }}
+    args:
+      chdir: "{{ cce_provisioning_path }}"
+    with_items:
+      - name: "SOME_DUMMY_PARAM"
+        value: "SOME_DUMMY_PARAM_VALUE"
+        append: "false"
+
+  - name: Setting target aliases for stack {{ cce_provisioning_install_stackname }}
+    command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} {{ item.append }}
+    args:
+      chdir: "{{ cce_provisioning_path }}"
+    with_items:
+      - name: "TARGET_ALIASES"
+        value: "[{{ all_hostaliases | join(',') }}]"
+        append: "true"
+    when: all_hostaliases is defined and (all_hostaliases|length>0)
 
   - name: Setting target hosts for stack {{ cce_provisioning_install_stackname }}
     command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} {{ item.append }}
@@ -31,9 +46,9 @@
       chdir: "{{ cce_provisioning_path }}"
     with_items:
       - name: "TARGET_HOSTS"
-        value: "[{{ all_hosts_computed | join(',') }}]"
-        append: "false"
-    when: all_hosts_computed is defined and (all_hosts_computed|length>0)
+        value: "[{{ all_hostnames | join(',') }}]"
+        append: "true"
+    when: all_hostnames is defined and (all_hostnames|length>0)
 
   - name: Setting params for stack {{ cce_provisioning_install_stackname }}
     command: ./scripts/provision_stack_setparams.sh {{ cce_owner }} {{ cce_provisioning_install_stackname }} {{ item.name }} {{ item.value }} true

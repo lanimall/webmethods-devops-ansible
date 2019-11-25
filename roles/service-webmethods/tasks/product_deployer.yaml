@@ -1,0 +1,6 @@
+---
+
+- import_tasks: "command_{{ command }}.yaml"
+  vars:
+    service_exec_filepath: "{{ webmethods_install_dir }}/profiles/IS_deployer/bin/sagis{{ webmethods_install_major_version }}"
+    service_name: "sag1is{{ webmethods_install_major_version }}"

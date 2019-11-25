@@ -1,18 +1,25 @@
 ---
 
+
+## OS settings
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_cee }}" 
+
+limits_user: "{{ webmethods_user }}"
+limits_openfiles: "128000"
+limits_processes: "20000"
+
+## CCE settings
 cce_install_dir: "{{ webmethods_install_dir }}"
 cce_owner: "{{ webmethods_user }}"
 cce_group: "{{ webmethods_group }}"
-
-sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_cee }}" 
 
 ## cce_provisioning params
 cce_provisioning_path: /opt/webMethods-devops-provisioning/
 
 ## local path
 cce_provisioning_src: ~/webMethods-devops-provisioning/
-cce_provisioning_license_path: ~/licenses.zip
-cce_provisioning_secrets_path: ~/.secrets
+cce_provisioning_license_path: ~/.cce_licenses.zip
+cce_provisioning_secrets_path: ~/.cce_secrets
 cce_provisioning_internal_sshkey: ~/id_rsa_webmethods
 
 ## versions
