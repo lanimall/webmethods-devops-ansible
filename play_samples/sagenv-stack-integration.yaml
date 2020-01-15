@@ -1,0 +1,75 @@
+---
+
+################################################################
+## Sys Prep
+################################################################
+
+## ensures that CCE is installed and well
+- import_playbook: sagenv-sysprep-cce.yaml
+  tags:
+    - sysprep
+    - sysprep-cce
+
+################################################################
+## Unniversal Messaging provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_inventory_pattern: integration-universalmessaging
+    cce_provisioning_stack_name: um_cluster
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_UM"
+        value: "*_NUMWF_10.*_*_*"
+    cce_provisioning_stack_product_names: um
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 9000
+  tags:
+    - install
+    - install-um
+
+################################################################
+## terracotta provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_inventory_pattern: integration-terracotta
+    cce_provisioning_stack_name: terracotta_cluster
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_TERRACOTTA"
+        value: "*TerraCotta_v4_Clustering_IS_terracotta-license.key"
+    cce_provisioning_stack_product_names: terracotta
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 9530
+      - 9540
+  tags:
+    - install
+    - install-terracotta
+
+################################################################
+## IS provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: is_stateful
+    cce_provisioning_stack_inventory_pattern: integration-server
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_IS"
+        value: "*_PIE_10.*_*_*"
+      - name: "DEFAULT_ADMIN_PASSWORD_IS"
+        value: "SomeStrongPwd123!"
+    cce_provisioning_stack_product_names: integrationserver
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 5555
+      - 9999
+  tags:
+    - install
+    - install-integrationserver

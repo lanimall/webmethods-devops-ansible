@@ -1,0 +1,100 @@
+---
+
+################################################################
+## Sys Prep
+################################################################
+
+## ensures that CCE is installed and well
+- import_playbook: sagenv-sysprep-cce.yaml
+  tags:
+    - sysprep
+    - sysprep-cce
+
+################################################################
+## Jenkins provisoning
+################################################################
+
+- import_playbook: sagenv-common-jenkins.yaml
+  tags:
+    - install
+    - install-jenkins
+
+################################################################
+## SPM provisioning
+################################################################
+
+# - import_playbook: sagenv-common-webmethods.yaml
+#   vars:
+#     cce_provisioning_stack_name: spm
+#     cce_provisioning_stack_inventory_pattern: deployer,isvaltesting,abe
+#     cce_provisioning_stack_params: {}
+#     cce_provisioning_stack_product_names: spm
+#     cce_provisioning_stack_product_envs_by_name: {}
+#     cce_provisioning_stack_validation_ports:
+#       - 8092
+#       - 8093
+#   tags:
+#     - install
+#     - install-spm
+
+################################################################
+## abe provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: abe
+    cce_provisioning_stack_inventory_pattern: abe
+    cce_provisioning_stack_params: {}
+    cce_provisioning_stack_product_names: abe
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_service_setup: false
+  tags:
+    - install
+    - install-abe
+
+################################################################
+## IS wM test suite testing provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: is_stateless
+    cce_provisioning_stack_inventory_pattern: isvaltesting
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_IS"
+        value: "*_PIE_10.*_*_*"
+      - name: "DEFAULT_ADMIN_PASSWORD_IS"
+        value: "SomeStrongPwd123!"
+    cce_provisioning_stack_product_names: integrationserver
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 5555
+      - 9999
+  tags:
+    - install
+    - install-isvaltesting
+
+################################################################
+## deployer provisioning
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: deployer
+    cce_provisioning_stack_inventory_pattern: deployer
+    cce_provisioning_stack_params:
+      - name: "LICENSE_KEY_ALIAS_IS"
+        value: "*_PIE_10.*_*_*"
+      - name: "DEFAULT_ADMIN_PASSWORD_IS"
+        value: "SomeStrongPwd123!"
+    cce_provisioning_stack_product_names: deployer
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_reboot: false
+    cce_provisioning_stack_validation_ports:
+      - 5555
+      - 9999
+  tags:
+    - install
+    - install-deployer
