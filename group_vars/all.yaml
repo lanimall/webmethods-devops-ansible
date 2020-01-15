@@ -2,14 +2,19 @@
 # The variables file used by the playbooks in the all group.
 
 webmethods_install_dir: /opt/softwareag
-webmethods_install_major_version: 105
 webmethods_user: saguser
+webmethods_userid: 30001
 webmethods_group: saguser
-webmethods_userid: 1100
-webmethods_groupid: 1100
-webmethods_internal_sshkey_pub: ~/id_rsa_webmethods.pub
+webmethods_groupid: 30001
 
-env_url_domain: clouddemo.saggov.com
+## these values are mostly used for the service creations
+webmethods_install_version_major: 10
+webmethods_install_version_minor: 5
+webmethods_install_version_fixlevel: 2
+webmethods_install_full_version_simple: "{{ webmethods_install_major_version }}{{ webmethods_install_minor_version }}"
+
+## cce_provisioning params
+cce_provisioning_secrets_path: ~/.auto_provisioning_cce_secrets
 
 ## default spm service name and envs
 webmethods_default_limits_openfiles: "32000"
@@ -20,12 +25,14 @@ sys_open_ports_spm: ["8092/tcp","8093/tcp"]
 sys_open_ports_cee: ["8090/tcp","8091/tcp"]
 sys_open_ports_deployer: ["5555/tcp","9999/tcp"]
 sys_open_ports_abe: []
-sys_open_ports_is: ["5555/tcp","9999/tcp"]
+sys_open_ports_integrationserver: ["5555/tcp","9999/tcp"]
 sys_open_ports_internaldatastore: ["9240/tcp","9340/tcp"]
 sys_open_ports_apigateway: ["9072/tcp","9073/tcp","5555/tcp","9999/tcp"]
 sys_open_ports_terracotta: ["9510/tcp","9520/tcp","9530/tcp","9540/tcp"]
 sys_open_ports_apiportal: ["18101/tcp"]
 sys_open_ports_jenkins: ["8080/tcp"]
+sys_open_ports_universalmessaging: ["9000/tcp"]
+sys_open_ports_mws: ["8585/tcp","8586/tcp","8587/tcp"]
 
 ## some default sysprep values -- should be overriden by other groups
 limits_user: "*"

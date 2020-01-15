@@ -1,14 +1,15 @@
 ---
 
-
 - import_playbook: sagenv-sysprep-base.yaml
   vars:
     inventory_groupnames: all_linux
-
-- import_playbook: sagenv-sysprep-webmethods.yaml
-  vars:
-    inventory_groupnames: all_webmethods:!commandcentral
-
-- import_playbook: sagenv-sysprep-cce.yaml
   tags:
     - sysprep
+    - sysprep-base
+    
+- import_playbook: sagenv-sysprep-webmethods.yaml
+  vars:
+    inventory_groupnames: all_webmethods
+  tags:
+    - sysprep
+    - sysprep-webmethods

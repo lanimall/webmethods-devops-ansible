@@ -1,5 +1,29 @@
 ---
 
+## create the wM user with the right SSH key on command central
+- hosts: commandcentral
+  become: true
+  tasks:
+    - import_role: 
+        name: create-service-user
+      vars:
+        username: "{{ webmethods_user }}"
+        userid: "{{ webmethods_userid }}"
+        groupname: "{{ webmethods_group }}"
+        groupid: "{{ webmethods_groupid }}"
+        generate_ssh_key: yes
+    - name: Print user output
+      debug: var=created_user
+    - name: write public key to local file                                                                                
+      copy:                                                                                              
+        content: "{{ created_user.ssh_public_key }}" 
+        dest: "/tmp/created_user_ssh_public_key_{{inventory_hostname}}"
+      delegate_to: localhost
+  tags:
+    - sysprep
+    - sysprep_webmethods
+
+## then create the wM user on all the webmethods server using the public key of the key created above
 - hosts: "{{ inventory_groupnames }}"
   become: true
   roles:
@@ -9,8 +33,21 @@
         userid: "{{ webmethods_userid }}"
         groupname: "{{ webmethods_group }}"
         groupid: "{{ webmethods_groupid }}"
-        authorized_sshkey_path: "{{ webmethods_internal_sshkey_pub }}"
+        authorized_sshkey_path: "/tmp/created_user_ssh_public_key_*"
     - role: prepare-wminstall
+  tags:
+    - sysprep
+    - sysprep_webmethods
+
+- hosts: localhost
+  become: true
+  tasks:
+    - name: clear the pub ssh keys
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_fileglob:
+      - "/tmp/created_user_ssh_public_key_*"
   tags:
     - sysprep
     - sysprep_webmethods

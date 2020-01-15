@@ -18,3 +18,56 @@
     - name: show all the hosts matching the pattern, i.e. all but the group www
       debug:
         var: cce_provisioning_stack_hosts
+
+- hosts: localhost
+  vars:
+    hostnameprefix: "owcpsagenv"
+  tasks:
+    - name: test jinja capabilities
+      debug: msg={{ hostnameprefix }}-{{ "%03d" | format(ansible_default_ipv4.address.split(".")[2]|int) }}-{{ "%03d" | format(ansible_default_ipv4.address.split(".")[3]|int) }}
+
+
+################################################################
+## Bootstrap and tune SPM
+################################################################
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_stack_name: spm
+    cce_provisioning_stack_inventory_pattern: mws,bpms
+    cce_provisioning_stack_params: []
+    cce_provisioning_stack_params_secure: []
+    cce_provisioning_stack_product_names: spm
+    cce_provisioning_stack_product_envs_by_name: {}
+    cce_provisioning_stack_postinstall_service_setup: true
+    cce_provisioning_stack_validation_ports:
+      - 8092
+      - 8093
+  tags:
+    - install
+    - install-spm
+
+
+
+# - import_playbook: sagenv-common-webmethods.yaml
+#   vars:
+#     cce_provisioning_stack_name: bpms
+#     cce_provisioning_stack_inventory_pattern: bpms
+#     cce_provisioning_stack_params:
+#       - name: "REPO_PRODUCTS"
+#         value: "{{ cce_provisioning_products_repo_bpms }}"
+#       - name: "REPO_FIXES"
+#         value: "{{ cce_provisioning_fixes_repo_bpms }}"
+#       - name: "APPLY_FIXES_ONLY"
+#         value: "true"
+#       - name: "FIXES"
+#         value: "ALL"
+#     cce_provisioning_stack_params_secure: []
+#     cce_provisioning_stack_product_names: integrationserver
+#     cce_provisioning_stack_postinstall_service_setup: false
+#     cce_provisioning_stack_validation_ports:
+#       - 5555
+#       - 9999
+#   tags:
+#     - install
+#     - install-bpms-fixes

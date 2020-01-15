@@ -1,6 +1,0 @@
----
-
-config_item: ""
-status_success_filepath: "{{ ansible_env.HOME }}/configure_{{ config_item }}.status.success"
-status_stdout_filepath: "{{ ansible_env.HOME }}/configure_{{ config_item }}_{{ inventory_hostname }}.out"
-configure_cce_force: false

@@ -1,8 +1,0 @@
----
-
-## OS settings
-sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_is }}" 
-
-limits_user: "{{ webmethods_user }}"
-limits_openfiles: "64000"
-limits_processes: "20000"

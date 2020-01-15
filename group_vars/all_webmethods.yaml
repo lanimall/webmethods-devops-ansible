@@ -1,14 +1,18 @@
 ---
 
 ## OS settings
-sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_abe }}"
-
+sys_open_ports: "{{ sys_open_ports_spm }}"
 limits_user: "{{ webmethods_user }}"
-limits_openfiles: "250000"
-limits_processes: "20000"
 
 ## default provisonning values
-cce_provisioning_stack_postinstall_service_setup: true
-cce_provisioning_stack_postinstall_webmethods: true
-cce_provisioning_stack_validation_ports_timeout: 900
-cce_provisioning_stack_product_envs_by_name: {}
+cce_provisioning_template_params: {}
+cce_provisioning_template_params_secure: {}
+cce_provisioning_installed_product_names: "notspecified"
+cce_provisioning_installed_product_envs_by_name:
+  LimitNOFILE: "{{ limits_openfiles }}"
+  LimitNPROC: "{{ limits_processes }}"
+cce_provisioning_postinstall_webmethods: true
+cce_provisioning_postinstall_service_setup: true
+cce_provisioning_postinstall_reboot: false
+cce_provisioning_validation_ports: []
+cce_provisioning_validation_ports_timeout: 900
