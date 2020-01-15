@@ -1,0 +1,45 @@
+---
+
+##start / stop any process...
+## params:
+## - inventory_pattern: ""
+## - validation_ports: []
+## - validation_ports_timeout: 300
+## - ansible_hosts_lookup_mode: "alias"
+## - ansible_hosts_lookup_clear_first: true
+
+- hosts: commandcentral
+  become: true
+  become_user: "{{ webmethods_user }}"
+  tasks:
+    - import_role: 
+        name: check-remote-ports
+      vars:
+        inventory_pattern: "universalmessaging,commandcentral,abe"
+        inventory_hosts_lookup_property: ""
+        validation_ports_delay: 0
+        validation_ports_timeout: 10
+        validation_ports:
+          - 8092
+    - name: reset
+      setup:
+    - import_role: 
+        name: check-remote-ports
+      vars:
+        inventory_pattern: "universalmessaging,commandcentral,abe"
+        inventory_hosts_lookup_property: "ansible_host"
+        validation_ports_delay: 0
+        validation_ports_timeout: 10
+        validation_ports:
+          - 8092
+    - name: reset
+      setup:
+    - import_role: 
+        name: check-remote-ports
+      vars:
+        inventory_pattern: "universalmessaging,commandcentral,abe"
+        inventory_hosts_lookup_property: "dns_internal"
+        validation_ports_delay: 0
+        validation_ports_timeout: 10
+        validation_ports:
+          - 8092

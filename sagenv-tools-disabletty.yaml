@@ -1,0 +1,8 @@
+---
+
+- hosts: all_linux
+  become: true
+  roles:
+    - role: server-disable-tty
+  vars:
+    ansible_ssh_pipelining: no

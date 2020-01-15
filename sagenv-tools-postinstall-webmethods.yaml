@@ -1,0 +1,55 @@
+---
+
+##start / stop any process...
+## params:
+## - inventory_groupnames
+## - product_name: one of the wM product name
+## - product_instance_name: instance name
+## - product_service_env
+## - postinstall_service_setup
+## - postinstall_reboot
+## - postinstall_validation_ports
+## - postinstall_validation_ports_timeout
+
+- hosts: "{{ inventory_groupnames }}"
+  tasks:
+    - name: Root tasks
+      block:
+        - import_role: 
+            name: post-install-webmethods
+          when: postinstall_webmethods|bool
+        - import_role: 
+            name: service-webmethods
+          vars:
+            product_command: "create"
+            force_create: false
+          when: postinstall_service_setup|bool
+        - import_role: 
+            name: service-webmethods
+          vars:
+            product_command: "update"
+          when: postinstall_service_setup|bool
+        - import_role: 
+            name: command-webmethods
+          vars:
+            product_command: "stop"
+          become: true
+          become_user: "{{ webmethods_user }}"
+          when: postinstall_service_setup|bool
+        - import_role: 
+            name: service-webmethods
+          vars:
+            product_command: "restart"
+          when: postinstall_service_setup|bool
+        - name: "Reboot the machine ONLY IF postinstall_reboot set to true"
+          reboot:
+            reboot_timeout: 1000
+          when: postinstall_reboot is defined and postinstall_reboot == true
+        - name: Wait for validation ports to become open on the host, don't start checking for 10 seconds
+          wait_for:
+            port: "{{ item }}"
+            delay: 10
+            timeout: "{{ postinstall_validation_ports_timeout }}"
+          with_items: "{{ postinstall_validation_ports }}"
+          when: postinstall_validation_ports is defined and (postinstall_validation_ports|length > 0)
+      become: true

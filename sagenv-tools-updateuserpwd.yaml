@@ -1,0 +1,12 @@
+---
+
+- hosts: all_linux
+  become: true
+  vars:
+    username: "wmadmin"
+    ##generated with python -c 'import crypt; print crypt.crypt("YourPassword", "$6$random_salt")'
+    userpassword: "$6$random_salt$HKspx4n.u8ovl8uo/L7FW2vI7oejsOgp.k8xz21u1sIcFaqRipTwyx9wzyM6Vo5QMAE7uYp0fjVeuo5O9UYdz/"
+  tasks:
+    - name: updating password
+      user: name={{ username }} update_password=always password={{ userpassword }}
+        

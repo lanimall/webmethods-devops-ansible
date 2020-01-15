@@ -1,0 +1,16 @@
+---
+
+##start / stop any process...
+## params:
+## - inventory_groupnames
+## - product_command: start, stop
+## - product_name: one of the wM product name
+## - product_instance_name: instance name
+
+- hosts: "{{ inventory_groupnames }}"
+  become: true
+  become_user: "{{ webmethods_user }}"
+  roles:
+    - role: command-webmethods
+  tags:
+    - command
