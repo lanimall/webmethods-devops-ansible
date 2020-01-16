@@ -1,0 +1,54 @@
+---
+
+- hosts: localhost
+  gather_facts: true
+  vars:
+    playbooks_extravars_filepath:
+    playbooks_extravars:
+    playbooks_tags:
+    playbooks_skip_tags:
+    playbooks_dir: "./playbooks"
+    playbooks_dirproject_name:
+    playbooks_names: []
+  tasks:
+    - name: Clear the ansible params fact
+      set_fact:
+        playbook_params: []
+
+    - name: Print the params
+      debug:
+        msg: 
+        - "Running webmethods producct provisoning with:"
+        - "playbooks_extravars_filepath = {{ playbooks_extravars_filepath | default('undefined') }}"
+        - "playbooks_extravars = {{ playbooks_extravars | default('undefined') }}"
+        - "playbooks_tags = {{ playbooks_tags | default('undefined') }}"
+        - "playbooks_skip_tags = {{ playbooks_skip_tags | default('undefined') }}"
+        - "playbooks_dir = {{ playbooks_dir | default('undefined') }}"
+        - "playbooks_dirproject_name = {{ playbooks_dirproject_name | default('undefined') }}"
+        - "playbooks_names = {{ playbooks_names | default('undefined') }}"
+
+    - name: append extra-vars file path {{ playbooks_extravars_filepath }} to the playbook_params list
+      set_fact:
+        playbook_params: "{{ playbook_params }} + [ '--extra-vars \"@{{ playbooks_extravars_filepath }}\"' ]"
+      when: playbooks_extravars_filepath is defined and playbooks_extravars_filepath != ""
+
+    - name: append tags {{ playbooks_tags }} to the playbook_params list
+      set_fact:
+        playbook_params: "{{ playbook_params }} + [ '--tags {{ playbooks_tags }}' ]"
+      when: playbooks_tags is defined and playbooks_tags != ""
+
+    - name: append skip_tags {{ playbooks_skip_tags }} to the playbook_params list
+      set_fact:
+        playbook_params: "{{ playbook_params }} + [ '--skip-tags {{ playbooks_skip_tags }}' ]"
+      when: playbooks_skip_tags is defined and playbooks_skip_tags != ""
+
+    - name: Running ansible-playbook {{ playbooks_dir }}/{{ playbooks_dirproject_name }}/{{ item }}.yaml
+      shell: ansible-playbook {{ playbooks_dir }}/{{ playbooks_dirproject_name }}/{{ item }}.yaml {{ playbook_params|join(' ') }}
+      with_items: "{{ playbooks_names }}"
+      register: job_results
+
+    - name: Copy command result to the server
+      copy:
+        content: "{{ job_results.results[item.0].stdout_lines | join('\n') }}"
+        dest: "{{ ansible_env.HOME }}/{{ playbooks_dirproject_name }}-{{ item.1 | replace('/','-') }}.out"
+      with_indexed_items: "{{ playbooks_names }}"
