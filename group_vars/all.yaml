@@ -11,7 +11,7 @@ webmethods_groupid: 30001
 webmethods_install_version_major: 10
 webmethods_install_version_minor: 5
 webmethods_install_version_fixlevel: 2
-webmethods_install_full_version_simple: "{{ webmethods_install_major_version }}{{ webmethods_install_minor_version }}"
+webmethods_install_full_version_simple: "{{ webmethods_install_version_major }}{{ webmethods_install_version_minor }}"
 
 ## cce_provisioning params
 cce_provisioning_secrets_path: ~/.auto_provisioning_cce_secrets
