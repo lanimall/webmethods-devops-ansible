@@ -8,6 +8,7 @@ limits_user: "{{ webmethods_user }}"
 cce_provisioning_template_params: {}
 cce_provisioning_template_params_secure: {}
 cce_provisioning_installed_product_names: "notspecified"
+cce_provisioning_installed_product_instance_names: "notspecified"
 cce_provisioning_installed_product_envs_by_name:
   LimitNOFILE: "{{ limits_openfiles }}"
   LimitNPROC: "{{ limits_processes }}"

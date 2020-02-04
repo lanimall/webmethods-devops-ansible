@@ -29,6 +29,7 @@
         - "cce_provisioning_template_params = {{ cce_provisioning_template_params | default('undefined') }}"
         - "cce_provisioning_template_params_secure = ******************"
         - "cce_provisioning_installed_product_names = {{ cce_provisioning_installed_product_names | default('undefined') }}"
+        - "cce_provisioning_installed_product_instance_names = {{ cce_provisioning_installed_product_instance_names | default('undefined') }}"
         - "cce_provisioning_installed_product_envs_by_name = {{ cce_provisioning_installed_product_envs_by_name | default('undefined') }}"
         - "cce_provisioning_postinstall_webmethods = {{ cce_provisioning_postinstall_webmethods | default('undefined') }}"
         - "cce_provisioning_postinstall_service_setup = {{ cce_provisioning_postinstall_service_setup | default('undefined') }}"
@@ -118,6 +119,7 @@
           vars:
             product_command: "create"
             product_name: "{{ cce_provisioning_installed_product_names }}"
+            product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
             force_create: false
             service_user: "{{ webmethods_user }}"
           when: cce_provisioning_postinstall_service_setup|bool
@@ -126,6 +128,7 @@
           vars:
             product_command: "update"
             product_name: "{{ cce_provisioning_installed_product_names }}"
+            product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
             service_env: "{{ cce_provisioning_installed_product_envs_by_name }}"
           when: cce_provisioning_postinstall_service_setup|bool
         - import_role: 
@@ -133,6 +136,7 @@
           vars:
             product_command: "stop"
             product_name: "{{ cce_provisioning_installed_product_names }}"
+            product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
           become: true
           become_user: "{{ webmethods_user }}"
           when: cce_provisioning_postinstall_service_setup|bool
@@ -141,6 +145,7 @@
           vars:
             product_command: "restart"
             product_name: "{{ cce_provisioning_installed_product_names }}"
+            product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
           when: cce_provisioning_postinstall_service_setup|bool
         - name: "Reboot the machine ONLY IF postinstall_reboot set to true"
           reboot:
