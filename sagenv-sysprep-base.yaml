@@ -16,10 +16,21 @@
 
 - hosts: "{{ inventory_groupnames }}"
   become: true
-  roles:
-    - role: manage-packages
-    - role: update-firewall
-    - role: update-os 
+  tasks:
+    - import_role: 
+        name: manage-packages
+    - import_role: 
+        name: update-firewall
+    - import_role: 
+        name: update-os
+      vars:
+        allow_reboot: true
+        sysctl_config:
+          net.ipv6.conf.all.disable_ipv6: "1"
+          net.ipv6.conf.default.disable_ipv6: "1"
+    - import_role: 
+        name: update-os
+
   tags:
     - sysprep
     - sysprep_linux
