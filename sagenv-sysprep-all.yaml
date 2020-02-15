@@ -9,7 +9,7 @@
     
 - import_playbook: sagenv-sysprep-webmethods.yaml
   vars:
-    inventory_groupnames: all_webmethods
+    inventory_groupnames: all_webmethods:&all_linux
   tags:
     - sysprep
     - sysprep-webmethods

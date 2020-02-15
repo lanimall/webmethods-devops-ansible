@@ -16,10 +16,6 @@ webmethods_install_full_version_simple: "{{ webmethods_install_version_major }}{
 ## cce_provisioning params
 cce_provisioning_secrets_path: ~/.auto_provisioning_cce_secrets
 
-## default spm service name and envs
-webmethods_default_limits_openfiles: "32000"
-webmethods_default_limits_processes: "10000"
-
 ## default open ports based on products
 sys_open_ports_spm: ["8092/tcp","8093/tcp"]
 sys_open_ports_cee: ["8090/tcp","8091/tcp"]
@@ -33,35 +29,3 @@ sys_open_ports_apiportal: ["18101/tcp"]
 sys_open_ports_jenkins: ["8080/tcp"]
 sys_open_ports_universalmessaging: ["9000/tcp"]
 sys_open_ports_mws: ["8585/tcp","8586/tcp","8587/tcp"]
-
-## some default sysprep values -- should be overriden by other groups
-limits_user: "*"
-limits_openfiles: "32000"
-limits_processes: "5000"
-
-sys_open_ports: []
-
-sysctl_config:
-  fs.file-max: "{{ limits_openfiles }}"
-  
-limits_configs:
-  - domain: "{{ limits_user }}"
-    type: soft
-    item: nofile
-    value: "{{ limits_openfiles }}"
-    comment: 'the max file descriptor'
-  - domain: "{{ limits_user }}"
-    type: hard
-    item: nofile
-    value: "{{ limits_openfiles }}"
-    comment: 'the max file descriptor'
-  - domain: "{{ limits_user }}"
-    type: soft
-    item: nproc
-    value: "{{ limits_processes }}"
-    comment: 'the max process limit'
-  - domain: "{{ limits_user }}"
-    type: hard
-    item: nproc
-    value: "{{ limits_processes }}"
-    comment: 'the max process limit'

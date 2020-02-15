@@ -4,6 +4,35 @@
 sys_open_ports: "{{ sys_open_ports_spm }}"
 limits_user: "{{ webmethods_user }}"
 
+## some default sysprep values -- will be overriden by other groups
+limits_openfiles: "32000"
+limits_processes: "5000"
+
+sysctl_config:
+  fs.file-max: "{{ limits_openfiles }}"
+  
+limits_configs:
+  - domain: "{{ limits_user }}"
+    type: soft
+    item: nofile
+    value: "{{ limits_openfiles }}"
+    comment: 'the max file descriptor'
+  - domain: "{{ limits_user }}"
+    type: hard
+    item: nofile
+    value: "{{ limits_openfiles }}"
+    comment: 'the max file descriptor'
+  - domain: "{{ limits_user }}"
+    type: soft
+    item: nproc
+    value: "{{ limits_processes }}"
+    comment: 'the max process limit'
+  - domain: "{{ limits_user }}"
+    type: hard
+    item: nproc
+    value: "{{ limits_processes }}"
+    comment: 'the max process limit'
+
 ## default provisonning values
 cce_provisioning_template_params: {}
 cce_provisioning_template_params_secure: {}
