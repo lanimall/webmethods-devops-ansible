@@ -2,9 +2,16 @@
 
 An ansible template project for webMethods products automated provisioning and management
 
+## Adding it as a submodule to your project
+
+```bash
+git submodule add https://github.com/lanimall/webmethods-devops-ansible.git webmethods-ansible
+```
+
 ## Some sysprep tasks:
 
 Optional if not done: let's remove tty requiremewnt for SUDO (temp thing until we use the right ansible user)
+
 ```
 ansible-playbook -i inventory sagenv-sysprep-disabletty.yaml 
 ```
