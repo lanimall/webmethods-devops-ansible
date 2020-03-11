@@ -96,9 +96,9 @@
             config_item: repo_products
             cce_configure_params:
               - name: "repo_products_version_major"
-                value: "{{ webmethods_install_version_major }}"
+                value: "10"
               - name: "repo_products_version_minor"
-                value: "{{ webmethods_install_version_minor }}"
+                value: "5"
             cce_configure_params_secure: []
             configure_cce_force: true
           ignore_errors: yes
