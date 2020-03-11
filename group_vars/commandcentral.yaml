@@ -8,28 +8,16 @@ limits_openfiles: "128000"
 limits_processes: "20000"
 
 ## CCE settings
-cce_install_dir: "{{ webmethods_install_dir }}"
 cce_owner: "{{ webmethods_user }}"
 cce_group: "{{ webmethods_group }}"
 
-## cce_provisioning path on final target server
+cce_install_dir: "{{ webmethods_install_dir }}"
+
+## cce_provisioning path on final target CCE server
 cce_provisioning_code_path: /opt/softwareag/webmethods-devops-sagcce
-##NOTE: sag conent can get big with the images etc... so good idea to make sure the path is a mount point to the larger disk
+
+##NOTE: sag content can get big with the images etc... so good idea to make sure the path is a mount point to the larger disk
 cce_provisioning_content_path: /opt/softwareag/webmethods-devops-sagcontent
 cce_provisioning_licenses_path: "{{ cce_provisioning_content_path }}/licenses"
 cce_provisioning_images_path: "{{ cce_provisioning_content_path }}/images"
 cce_provisioning_installers_path: "{{ cce_provisioning_content_path }}/installers"
-
-## cce_provisioning LOCAL paths on management server
-cce_provisioning_code_localpath: ~/webmethods-provisioning/webmethods-devops-sagcce/
-cce_provisioning_content_localpath: /opt/sag_content/
-
-## versions 10.3 -- used to get the right CCE installer
-# cce_version: 10.3
-# cce_version_fix: fix10
-# cce_platform: lnxamd64
-
-## versions 10.5 -- used mostly for the CC install to get the right CCE installer
-cce_version: 10.5
-cce_version_fix: fix3
-cce_platform: lnxamd64
