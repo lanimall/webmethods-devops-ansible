@@ -3,6 +3,9 @@
 ## OS settings
 sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_cee }}" 
 
+## extra package to install on this type of server profile
+extra_packages: ["ant","telnet","wget","bind-utils"]
+
 limits_user: "{{ webmethods_user }}"
 limits_openfiles: "128000"
 limits_processes: "20000"
