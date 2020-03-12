@@ -5,7 +5,7 @@ sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apiportal }}"
 
 ## extra package to install on this type of server profile
 ## note: api portal requires some missing fonts...hence why it's here.
-extra_packages: ["dejavu*"]
+extra_packages: ["fontconfig", "dejavu*"]
 
 limits_user: "{{ webmethods_user }}"
 limits_openfiles: "250000"
