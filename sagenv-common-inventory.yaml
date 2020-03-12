@@ -1,7 +1,7 @@
 ---
 
 ##construct the um urls from the inventory
-- hosts: commandcentral
+- hosts: "{{ set_fact_inventory_groupnames }}"
   become: true
   become_user: "{{ webmethods_user }}"
   tasks:
