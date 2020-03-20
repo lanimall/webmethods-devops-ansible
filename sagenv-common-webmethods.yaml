@@ -4,6 +4,7 @@
 ### cce_provisioning_template (type: string - the name or path to the CCE template)
 ### cce_provisioning_properties (type: string - the name of the properties file to load with the CCE template)
 ### cce_provisioning_target_hostgroups (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_target_hostgroups_host_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
 ### cce_provisioning_template_params_secure (type: dictionary - the dynamic secure params to apply with the CCE template - the main difference is that these params will not be printed to log outputs)
 
@@ -19,6 +20,7 @@
         - "cce_provisioning_template = {{ cce_provisioning_template | default('undefined') }}"
         - "cce_provisioning_properties = {{ cce_provisioning_properties | default('undefined') }}"
         - "cce_provisioning_target_hostgroups = {{ cce_provisioning_target_hostgroups | default('undefined') }}"
+        - "cce_provisioning_target_hostgroups_host_property = {{ cce_provisioning_target_hostgroups_host_property | default('undefined') }}"
         - "cce_provisioning_template_params = {{ cce_provisioning_template_params | default('undefined') }}"
         - "cce_provisioning_template_params_secure = ******************"
     - import_role: 
@@ -45,6 +47,7 @@
       vars:
         run_dir: "{{ cce_provisioning_code_path }}"
         target_host_aliases: "{{ cce_provisioning_target_host_aliases }}"
+        target_host_aliases_host_property: "{{ cce_provisioning_target_hostgroups_host_property }}"
         template: "{{ cce_provisioning_template }}"
         properties: "{{ cce_provisioning_properties }}"
         template_params: "{{ cce_provisioning_template_params }}"
