@@ -1,0 +1,50 @@
+---
+
+### minimum params:
+### cce_provisioning_target_hostgroups (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_target_hostgroups_host_property (type: string - the property to lookup to find the actual network host of an alias)
+
+- hosts: commandcentral
+  become: true
+  tasks:
+    - name: Provisionning sag-update/template.yaml
+      command: echo "Provisioning sag-update/template.yaml on inventory groups {{ cce_provisioning_target_hostgroups | default('undefined') }}"
+    - name: Print the params
+      debug:
+        msg: 
+        - "Running webmethods producct provisoning with:"
+        - "cce_provisioning_target_hostgroups = {{ cce_provisioning_target_hostgroups | default('undefined') }}"
+        - "cce_provisioning_target_hostgroups_host_property = {{ cce_provisioning_target_hostgroups_host_property | default('undefined') }}"
+        - "cce_provisioning_template_params = {{ cce_provisioning_template_params | default('undefined') }}"
+        - "cce_provisioning_template_params_secure = ******************"
+    - import_role: 
+        name: prepare-cce-provisoning
+      tags:
+        - cce_provisioning.sysprep
+
+#install stack
+- hosts: commandcentral
+  become: true
+  become_user: "{{ cce_owner }}"
+  pre_tasks:
+    - name: set initial facts
+      set_fact:
+        cce_provisioning_target_host_aliases: []
+    - name: Build a list of the inventory hosts
+      set_fact:
+        cce_provisioning_target_host_aliases: "{{ cce_provisioning_target_host_aliases }} + ['{{ item }}']"
+      with_inventory_hostnames:
+        - "{{ cce_provisioning_target_hostgroups }}"
+  tasks:
+    - import_role: 
+        name: provision-with-cce
+      vars:
+        run_dir: "{{ cce_provisioning_code_path }}"
+        target_host_aliases: "{{ cce_provisioning_target_host_aliases }}"
+        target_host_aliases_host_property: "{{ cce_provisioning_target_hostgroups_host_property }}"
+        template: "sag-update/template.yaml"
+        properties: "sag-update"
+        template_params: "{{ cce_provisioning_template_params }}"
+        template_params_secure: "{{ cce_provisioning_template_params_secure }}"
+  tags:
+    - cce_provisioning.install
