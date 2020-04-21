@@ -19,27 +19,6 @@
   
     - name: Non Root tasks
       block:
-        ## this is to make sure we gather the facts again as the user {{ cce_owner }} in order to get a valid {{ ansible_env.HOME }}
-        - setup:
-          tags:
-            - sysprep
-            - install
-        - name: set facts
-          set_fact:
-            install_cce: false
-          tags:
-            - sysprep
-        - import_role: 
-            name: create-known-hosts
-          vars:
-            ssh_known_hosts_dir: "{{ ansible_env.HOME }}/.ssh"
-            ssh_known_hosts_file: known_hosts
-          tags:
-            - sysprep
-        - import_role: 
-            name: install-cce
-          tags:
-            - install
         - import_role: 
             name: configure-cce
           vars:
@@ -162,11 +141,6 @@
   post_tasks:
     - name: Non Root tasks
       block:
-        - import_role: 
-            name: post-install-webmethods
-          vars:
-            postinstall_force: false
-            do_reboot: true
         - name: Wait for CCE ports to become open on the host
           wait_for:
             port: "{{ item }}"
