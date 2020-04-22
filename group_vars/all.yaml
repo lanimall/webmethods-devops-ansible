@@ -7,9 +7,6 @@ webmethods_userid: 30001
 webmethods_group: saguser
 webmethods_groupid: 30001
 
-## cce_provisioning params
-cce_provisioning_secrets_path: ~/.auto_provisioning_cce_secrets
-
 ## default open ports based on products
 sys_open_ports_spm: ["8092/tcp","8093/tcp"]
 sys_open_ports_cee: ["8090/tcp","8091/tcp"]
