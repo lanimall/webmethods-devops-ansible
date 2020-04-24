@@ -25,7 +25,8 @@
         name: update-os
       vars:
         allow_reboot: true
-
   tags:
     - sysprep
     - sysprep_linux
+
+- import_playbook: sagenv-tools-disabletty.yaml

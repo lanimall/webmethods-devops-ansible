@@ -1,13 +1,35 @@
 ---
 
+- name: Load vars
+  hosts: "*"
+  tasks:
+    - name: Include vars
+      include_vars:
+        file: "./vars/base_command_central.yaml"
+  tags:
+    - always
+    
 - hosts: commandcentral
   tasks:
     - name: Root tasks
       block:
+        # Let's assume the content is brought by other means because it's so huge, so no copying
         - import_role: 
             name: prepare-cce-provisoning
+          vars:
+            cce_prep_type: "content"
+            cce_copy_content: false
           tags:
             - sync-cce-provisoning
+
+        - import_role: 
+            name: prepare-cce-provisoning
+          vars:
+            cce_prep_type: "code"
+            cce_copy_content: true
+          tags:
+            - sync-cce-provisoning
+
         - import_role: 
             name: create-known-hosts
           vars:
@@ -15,7 +37,7 @@
             ssh_known_hosts_file: ssh_known_hosts
       become: true
       tags:
-        - sysprep
+        - prepare
   
     - name: Non Root tasks
       block:
@@ -150,4 +172,4 @@
             - 8091
       become: true
       tags:
-        - post-install
+        - postinstall

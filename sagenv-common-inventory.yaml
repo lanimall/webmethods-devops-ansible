@@ -1,16 +1,29 @@
 ---
 
+### minimum params:
+### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
+### cce_provisioning_inventory_hosts_add_prefix (type: string - the prefix to add to the host)
+### cce_provisioning_inventory_hosts_add_suffix (type: string - the suffix to add to the host)
+### cce_provisioning_inventory_hosts_join_string (type: string - the join string to use when concatenating the hosts into a single string)
+### cce_provisioning_inventory_hosts_var (type: string - the variable to save the inventory hosts into)
+
 ##construct the um urls from the inventory
 - hosts: "{{ set_fact_inventory_groupnames }}"
   become: true
   become_user: "{{ webmethods_user }}"
   tasks:
+    - name: set initial facts
+      set_fact: {"{{ cce_provisioning_inventory_hosts_var }}": "[]"}
+
     - import_role: 
         name: get-inventory-hosts
       vars:
-        inventory_pattern: "{{ cce_provisioning_inventory_pattern }}"
-        inventory_hosts_lookup_property: "{{ cce_provisioning_inventory_hosts_lookup_property }}"
+        inventory_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
+        inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
         inventory_hosts_add_prefix: "{{ cce_provisioning_inventory_hosts_add_prefix }}"
         inventory_hosts_add_suffix: "{{ cce_provisioning_inventory_hosts_add_suffix }}"
+        inventory_hosts_clear_first: true
+
     - name: assign hosts to specific facts variable
       set_fact: {"{{ cce_provisioning_inventory_hosts_var }}":"{{ get_inventory_hosts | join( cce_provisioning_inventory_hosts_join_string ) }}"}

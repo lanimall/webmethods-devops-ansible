@@ -1,10 +1,10 @@
 ---
 
 ### minimum params:
+### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_template (type: string - the name or path to the CCE template)
 ### cce_provisioning_properties (type: string - the name of the properties file to load with the CCE template)
-### cce_provisioning_target_hostgroups (type: string - the target ansible group to install the CCE template)
-### cce_provisioning_target_hostgroups_host_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
 ### cce_provisioning_template_params_secure (type: dictionary - the dynamic secure params to apply with the CCE template - the main difference is that these params will not be printed to log outputs)
 
@@ -13,46 +13,51 @@
   tasks:
     - name: Provisionning {{ cce_provisioning_template }}
       command: echo "Provisioning {{ cce_provisioning_template }} on inventory groups {{ cce_provisioning_target_hostgroups | default('undefined') }}"
+      tags:
+        - always
     - name: Print the params
       debug:
-        msg: 
+        msg:
         - "Running webmethods producct provisoning with:"
+        - "cce_provisioning_inventory_hosts_pattern = {{ cce_provisioning_inventory_hosts_pattern | default('undefined') }}"
+        - "cce_provisioning_inventory_hosts_property = {{ cce_provisioning_inventory_hosts_property | default('undefined') }}"
         - "cce_provisioning_template = {{ cce_provisioning_template | default('undefined') }}"
         - "cce_provisioning_properties = {{ cce_provisioning_properties | default('undefined') }}"
-        - "cce_provisioning_target_hostgroups = {{ cce_provisioning_target_hostgroups | default('undefined') }}"
-        - "cce_provisioning_target_hostgroups_host_property = {{ cce_provisioning_target_hostgroups_host_property | default('undefined') }}"
         - "cce_provisioning_template_params = {{ cce_provisioning_template_params | default('undefined') }}"
         - "cce_provisioning_template_params_secure = ******************"
+      tags:
+        - always
     - import_role: 
         name: prepare-cce-provisoning
+      vars:
+        cce_prep_type: "code"
+        cce_copy_content: true
       tags:
-        - cce_provisioning.sysprep
+        - prepare
 
 #install stack
 - hosts: commandcentral
   become: true
   become_user: "{{ cce_owner }}"
-  pre_tasks:
-    - name: set initial facts
-      set_fact:
-        cce_provisioning_target_host_aliases: []
-    - name: Build a list of the inventory hosts
-      set_fact:
-        cce_provisioning_target_host_aliases: "{{ cce_provisioning_target_host_aliases }} + ['{{ item }}']"
-      with_inventory_hostnames:
-        - "{{ cce_provisioning_target_hostgroups }}"
   tasks:
     - import_role: 
         name: provision-with-cce
       vars:
         run_dir: "{{ cce_provisioning_code_path }}"
-        target_host_aliases: "{{ cce_provisioning_target_host_aliases }}"
-        target_host_aliases_host_property: "{{ cce_provisioning_target_hostgroups_host_property }}"
+        inventory_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
+        inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
         template: "{{ cce_provisioning_template }}"
         properties: "{{ cce_provisioning_properties }}"
         template_params: "{{ cce_provisioning_template_params }}"
         template_params_secure: "{{ cce_provisioning_template_params_secure }}"
   tags:
-    - cce_provisioning.install
+    - install
 
 - import_playbook: sagenv-common-webmethods-postinstall.yaml
+  vars:
+    cce_provisioning_installed_product_names: spm
+    cce_provisioning_validation_ports:
+      - 8092
+      - 8093
+  tags:
+    - postinstall

@@ -17,10 +17,10 @@ cce_group: "{{ webmethods_group }}"
 cce_install_dir: "{{ webmethods_install_dir }}"
 
 ## cce_provisioning path on final target CCE server
-cce_provisioning_code_path: /opt/softwareag/webmethods-devops-sagcce
+cce_provisioning_code_path: "{{ webmethods_install_dir }}/webmethods-devops-sagcce/"
 
 ##NOTE: sag content can get big with the images etc... so good idea to make sure the path is a mount point to the larger disk
-cce_provisioning_content_path: /opt/softwareag/webmethods-devops-sagcontent
+cce_provisioning_content_path: "{{ webmethods_install_dir }}/webmethods-devops-sagcontent/"
 cce_provisioning_licenses_path: "{{ cce_provisioning_content_path }}/licenses"
 cce_provisioning_images_path: "{{ cce_provisioning_content_path }}/images"
 cce_provisioning_installers_path: "{{ cce_provisioning_content_path }}/installers"

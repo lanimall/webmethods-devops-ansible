@@ -1,7 +1,8 @@
 ---
 
 ### minimum params:
-### cce_provisioning_target_hostgroups (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_installed_product_names (type: list - the products installed by the template so we can create the right services etc...)
 ### cce_provisioning_installed_product_envs_by_name (type: dictionary)
 ### cce_provisioning_postinstall_webmethods (type: boolean)
@@ -17,7 +18,8 @@
       debug:
         msg: 
         - "Common webMethods postinstall tasks with params:"
-        - "cce_provisioning_target_hostgroups = {{ cce_provisioning_target_hostgroups | default('undefined') }}"
+        - "cce_provisioning_inventory_hosts_pattern = {{ cce_provisioning_inventory_hosts_pattern | default('undefined') }}"
+        - "cce_provisioning_inventory_hosts_property = {{ cce_provisioning_inventory_hosts_property | default('undefined') }}"
         - "cce_provisioning_installed_product_names = {{ cce_provisioning_installed_product_names | default('undefined') }}"
         - "cce_provisioning_installed_product_instance_names = {{ cce_provisioning_installed_product_instance_names | default('undefined') }}"
         - "cce_provisioning_installed_product_envs_by_name = {{ cce_provisioning_installed_product_envs_by_name | default('undefined') }}"
@@ -26,54 +28,17 @@
         - "cce_provisioning_postinstall_reboot = {{ cce_provisioning_postinstall_reboot | default('undefined') }}"
         - "cce_provisioning_validation_ports = {{ cce_provisioning_validation_ports | default('undefined') }}"
         - "cce_provisioning_validation_ports_timeout = {{ cce_provisioning_validation_ports_timeout | default('undefined') }}"
+      tags:
+        - always
 
 ##stop process before installing and starting the service
-- hosts: "{{ cce_provisioning_target_hostgroups }}"
+- hosts: "{{ cce_provisioning_inventory_hosts_pattern }}"
   tasks:
     - name: Root tasks
       block:
-        # - name: Validate that SPM is running fine at this point
-        #   wait_for:
-        #     port: "{{ item }}"
-        #     timeout: 300
-        #   with_items:
-        #     - 8092
-        #     - 8093
         - import_role: 
             name: post-install-webmethods
           when: cce_provisioning_postinstall_webmethods|bool
-          
-        # ##BEGIN SPM service: this makes sure the SPM service is created with the right defaults
-        # - import_role: 
-        #     name: service-webmethods
-        #   vars:
-        #     product_command: "create"
-        #     product_name: "spm"
-        #     force_create: false
-        #   when: cce_provisioning_postinstall_service_setup|bool
-        # - import_role: 
-        #     name: service-webmethods
-        #   vars:
-        #     product_command: "update"
-        #     product_name: "spm"
-        #     service_env: "{{ cce_provisioning_installed_product_envs_by_name }}"
-        #   when: cce_provisioning_postinstall_service_setup|bool
-        # - import_role: 
-        #     name: command-webmethods
-        #   vars:
-        #     product_command: "stop"
-        #     product_name: "spm"
-        #   become: true
-        #   become_user: "{{ webmethods_user }}"
-        #   when: cce_provisioning_postinstall_service_setup|bool
-        # - import_role: 
-        #     name: service-webmethods
-        #   vars:
-        #     product_command: "restart"
-        #     product_name: "spm"
-        #   when: cce_provisioning_postinstall_service_setup|bool
-        # ##END SPM service
-
         - import_role: 
             name: service-webmethods
           vars:
@@ -113,7 +78,7 @@
           when: cce_provisioning_postinstall_reboot is defined and cce_provisioning_postinstall_reboot == true
       become: true
   tags:
-    - "cce_provisioning.postinstall"
+    - postinstall
 
 #check ports
 - hosts: commandcentral
@@ -123,9 +88,9 @@
     - import_role: 
         name: check-remote-ports
       vars:
-        inventory_pattern: "{{ cce_provisioning_target_hostgroups }}"
-        inventory_hosts_lookup_property: "{{ cce_provisioning_target_hostgroups_host_property }}"
+        inventory_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
+        inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
         validation_ports: "{{ cce_provisioning_validation_ports }}"
         validation_ports_timeout: "{{ cce_provisioning_validation_ports_timeout }}"
   tags:
-    - "cce_provisioning.verify"
+    - postinstall

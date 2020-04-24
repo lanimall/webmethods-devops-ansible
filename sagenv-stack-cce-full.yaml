@@ -1,0 +1,5 @@
+---
+
+- import_playbook: sagenv-stack-cce-install.yaml
+
+- import_playbook: sagenv-stack-cce-configure.yaml
