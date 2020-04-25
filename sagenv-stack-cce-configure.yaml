@@ -19,16 +19,12 @@
           vars:
             cce_prep_type: "content"
             cce_copy_content: false
-          tags:
-            - sync-cce-provisoning
 
         - import_role: 
             name: prepare-cce-provisoning
           vars:
             cce_prep_type: "code"
             cce_copy_content: true
-          tags:
-            - sync-cce-provisoning
 
         - import_role: 
             name: create-known-hosts
@@ -37,7 +33,7 @@
             ssh_known_hosts_file: ssh_known_hosts
       become: true
       tags:
-        - prepare
+        - always
   
     - name: Non Root tasks
       block:
