@@ -1,5 +1,14 @@
 ---
 
+- name: Load vars
+  hosts: "*"
+  tasks:
+    - name: Include vars
+      include_vars:
+        file: "./vars/base_sysprep.yaml"
+  tags:
+    - always
+
 - hosts: localhost
   become: true
   tasks:

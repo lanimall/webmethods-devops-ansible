@@ -1,5 +1,14 @@
 ---
 
+- name: Load vars
+  hosts: "*"
+  tasks:
+    - name: Include vars
+      include_vars:
+        file: "./vars/base_sysprep.yaml"
+  tags:
+    - always
+
 ## create the wM user with the right SSH key on command central
 - hosts: commandcentral
   become: true
