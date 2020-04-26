@@ -8,6 +8,15 @@
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
 ### cce_provisioning_template_params_secure (type: dictionary - the dynamic secure params to apply with the CCE template - the main difference is that these params will not be printed to log outputs)
 
+- name: Load vars
+  hosts: "*"
+  tasks:
+    - name: Include vars
+      include_vars:
+        file: "./vars/base_command_central.yaml"
+  tags:
+    - always
+    
 - hosts: commandcentral
   become: true
   tasks:
@@ -59,5 +68,7 @@
     cce_provisioning_validation_ports:
       - 8092
       - 8093
+    cce_provisioning_postinstall_webmethods: true
+    cce_provisioning_postinstall_service_setup: false
   tags:
     - postinstall
