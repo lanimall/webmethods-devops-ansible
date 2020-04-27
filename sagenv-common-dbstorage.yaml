@@ -1,0 +1,9 @@
+---
+
+### minimum params:
+### cce_provisioning_dbtype (type: string - the type of db: sqlserver, oracle, mysql, postgres)
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_template: "databases/{{ cce_provisioning_dbtype }}/template-storage.yaml"
+    cce_provisioning_properties: "database-storage"

@@ -9,7 +9,7 @@
 ### cce_provisioning_inventory_hosts_var (type: string - the variable to save the inventory hosts into)
 
 ##construct the um urls from the inventory
-- hosts: "{{ set_fact_inventory_groupnames }}"
+- hosts: "*"
   become: true
   become_user: "{{ webmethods_user }}"
   tasks:
