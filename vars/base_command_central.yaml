@@ -9,6 +9,12 @@ cce_version: 10.5
 cce_version_fix: fix4
 cce_platform: lnxamd64
 
+cce_jvm_memory_min: "1024"
+cce_jvm_memory_max: "2048"
+
+spm_jvm_memory_min: "256"
+spm_jvm_memory_max: "512"
+
 ## cce_provisioning LOCAL paths on management server
 cce_provisioning_code_localpath: "/some/local/path/"
 

@@ -44,6 +44,10 @@
             cce_configure_params: []
             cce_configure_params_secure: []
             configure_cce_force: true
+            cce_jvm_memory_min: "{{ cce_jvm_memory_min }}"
+            cce_jvm_memory_max: "{{ cce_jvm_memory_max }}"
+            spm_jvm_memory_min: "{{ spm_jvm_memory_min }}"
+            spm_jvm_memory_max: "{{ spm_jvm_memory_max }}"
           ignore_errors: yes
           tags:
             - configure
