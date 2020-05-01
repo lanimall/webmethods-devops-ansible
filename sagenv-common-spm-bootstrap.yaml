@@ -1,0 +1,16 @@
+---
+
+################################################################
+## SPM provisioning
+################################################################
+
+### minimum params:
+### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
+### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
+
+- import_playbook: sagenv-common-webmethods.yaml
+  vars:
+    cce_provisioning_template: sag-spm/template-bootstrap.yaml
+    cce_provisioning_properties: spm-bootstrap
+  tags:
+    - install
