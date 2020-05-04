@@ -1,0 +1,21 @@
+---
+
+- name: Load vars
+  hosts: "*"
+  tasks:
+    - name: Include vars
+      include_vars:
+        file: "./vars/base_command_central.yaml"
+  tags:
+    - always
+
+- import_playbook: sagenv-common-webmethods-postinstall.yaml
+  vars:
+    cce_provisioning_installed_product_names: spm
+    cce_provisioning_validation_ports:
+      - 8092
+      - 8093
+    cce_provisioning_postinstall_webmethods: true
+    cce_provisioning_postinstall_service_setup: false
+  tags:
+    - postinstall
