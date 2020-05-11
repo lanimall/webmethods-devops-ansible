@@ -7,7 +7,7 @@ sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_cee }}"
 extra_packages: ["ant","telnet","wget","bind-utils"]
 
 limits_user: "{{ webmethods_user }}"
-limits_openfiles: "128000"
+limits_openfiles: "250000"
 limits_processes: "20000"
 
 ## CCE settings
