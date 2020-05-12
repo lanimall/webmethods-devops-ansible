@@ -19,5 +19,8 @@ sys_open_ports_apigateway: ["9072/tcp","9073/tcp","5555/tcp","9999/tcp"]
 sys_open_ports_terracotta: ["9510/tcp","9520/tcp","9530/tcp","9540/tcp"]
 sys_open_ports_apiportal: ["18101/tcp","18102/tcp","18011/tcp"]
 sys_open_ports_jenkins: ["8080/tcp"]
-sys_open_ports_universalmessaging: ["9000/tcp"]
+
+## these are: client ports, inter-realm ports, and jmx ports
+sys_open_ports_universalmessaging: ["9000/tcp","9001/tcp","9002/tcp","9003/tcp","9004/tcp","9005/tcp","8888/tcp","9999/tcp","9988/tcp"]
+
 sys_open_ports_mws: ["8585/tcp","8586/tcp","8587/tcp"]

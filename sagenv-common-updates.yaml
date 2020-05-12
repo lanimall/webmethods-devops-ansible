@@ -4,8 +4,5 @@
   vars:
     cce_provisioning_template: sag-update/template.yaml
     cce_provisioning_properties: sag-update
-    cce_provisioning_postinstall_webmethods: true
-    cce_provisioning_postinstall_service_setup: false
-    cce_provisioning_postinstall_reboot: true
   tags:
     - updates

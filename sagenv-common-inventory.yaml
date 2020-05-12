@@ -1,6 +1,8 @@
 ---
 
 ### minimum params:
+### cce_provisioning_inventory_inventory_scope (type: string - where this inventory fetching operation should be run
+####### and as a result, where will the variable "cce_provisioning_inventory_hosts_var" be available)
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
 ### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_inventory_hosts_add_prefix (type: string - the prefix to add to the host)
@@ -9,7 +11,7 @@
 ### cce_provisioning_inventory_hosts_var (type: string - the variable to save the inventory hosts into)
 
 ##construct the um urls from the inventory
-- hosts: "*"
+- hosts: "{{ cce_provisioning_inventory_inventory_scope }}"
   become: true
   become_user: "{{ webmethods_user }}"
   tasks:
