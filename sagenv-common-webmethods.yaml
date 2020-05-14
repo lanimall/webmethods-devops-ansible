@@ -54,7 +54,8 @@
       vars:
         run_dir: "{{ cce_provisioning_code_path }}"
         inventory_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
-        inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
+        hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
+        aliases_property: "{{ cce_provisioning_inventory_aliases_property }}"
         template: "{{ cce_provisioning_template }}"
         properties: "{{ cce_provisioning_properties }}"
         template_params: "{{ cce_provisioning_template_params }}"

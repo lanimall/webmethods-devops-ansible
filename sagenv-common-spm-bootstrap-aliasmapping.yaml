@@ -11,11 +11,18 @@
 - import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_inventory_hosts_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
+    cce_provisioning_template: sag-spm/template-bootstrap-aliasmapping.yaml
+    cce_provisioning_properties: spm-bootstrap-aliasmapping
     cce_provisioning_inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
-    cce_provisioning_template: sag-spm/template-bootstrap.yaml
-    cce_provisioning_properties: spm-bootstrap
+    cce_provisioning_inventory_aliases_property: "{{ cce_provisioning_inventory_aliases_property }}"
+    cce_provisioning_template_params:
+      - name: "aliasmapping.prefix"
+        value: "{{ cce_provisioning_inventory_aliasmapping_prefix }}"
+      - name: "aliasmapping.delimiter"
+        value: "{{ cce_provisioning_inventory_aliasmapping_delimiter }}"
   tags:
     - install
+    - install-universalmessaging-spm
 
 - import_playbook: sagenv-common-webmethods-postinstall-spm.yaml
   vars:

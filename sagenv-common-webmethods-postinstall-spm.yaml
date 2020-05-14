@@ -17,5 +17,6 @@
       - 8093
     cce_provisioning_postinstall_webmethods: true
     cce_provisioning_postinstall_service_setup: false
+    cce_provisioning_postinstall_reboot: false
   tags:
     - postinstall

@@ -39,7 +39,8 @@ cce_provisioning_template: "notspecified"
 cce_provisioning_properties: "notspecified"
 cce_provisioning_template_params: {}
 cce_provisioning_template_params_secure: {}
-cce_provisioning_inventory_hosts_property: "ansible_host"
+cce_provisioning_inventory_hosts_property: ""
+cce_provisioning_inventory_aliases_property: ""
 cce_provisioning_installed_product_names: "notspecified"
 cce_provisioning_installed_product_instance_names: "notspecified"
 cce_provisioning_installed_product_envs_by_name:
