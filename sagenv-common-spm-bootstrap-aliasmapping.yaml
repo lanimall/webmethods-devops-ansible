@@ -6,20 +6,16 @@
 
 ### minimum params:
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
-### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 
 - import_playbook: sagenv-common-webmethods.yaml
   vars:
     cce_provisioning_inventory_hosts_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
-    cce_provisioning_template: sag-spm/template-bootstrap-aliasmapping.yaml
-    cce_provisioning_properties: spm-bootstrap-aliasmapping
     cce_provisioning_inventory_hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
     cce_provisioning_inventory_aliases_property: "{{ cce_provisioning_inventory_aliases_property }}"
-    cce_provisioning_template_params:
-      - name: "aliasmapping.prefix"
-        value: "{{ cce_provisioning_inventory_aliasmapping_prefix }}"
-      - name: "aliasmapping.delimiter"
-        value: "{{ cce_provisioning_inventory_aliasmapping_delimiter }}"
+    cce_provisioning_inventory_aliasmapping_prefix: "{{ cce_provisioning_inventory_aliasmapping_prefix }}"
+    cce_provisioning_inventory_aliasmapping_delimiter: "{{ cce_provisioning_inventory_aliasmapping_delimiter }}"
+    cce_provisioning_template: sag-spm/template-bootstrap-aliasmapping.yaml
+    cce_provisioning_properties: spm-bootstrap-aliasmapping
   tags:
     - install
     - install-universalmessaging-spm

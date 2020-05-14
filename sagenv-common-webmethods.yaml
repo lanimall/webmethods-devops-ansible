@@ -3,6 +3,7 @@
 ### minimum params:
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
 ### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
+
 ### cce_provisioning_template (type: string - the name or path to the CCE template)
 ### cce_provisioning_properties (type: string - the name of the properties file to load with the CCE template)
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
@@ -56,6 +57,8 @@
         inventory_pattern: "{{ cce_provisioning_inventory_hosts_pattern }}"
         hosts_property: "{{ cce_provisioning_inventory_hosts_property }}"
         aliases_property: "{{ cce_provisioning_inventory_aliases_property }}"
+        aliasmapping_prefix: "{{ cce_provisioning_inventory_aliasmapping_prefix }}"
+        aliasmapping_delimiter: "{{ cce_provisioning_inventory_aliasmapping_delimiter }}"
         template: "{{ cce_provisioning_template }}"
         properties: "{{ cce_provisioning_properties }}"
         template_params: "{{ cce_provisioning_template_params }}"

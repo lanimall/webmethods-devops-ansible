@@ -27,5 +27,10 @@
         inventory_hosts_add_suffix: "{{ cce_provisioning_inventory_hosts_add_suffix }}"
         inventory_hosts_clear_first: true
 
+    - name: Print the params
+      debug:
+        msg: 
+        - "get_inventory_hosts_joined = {{ get_inventory_hosts | join( cce_provisioning_inventory_hosts_join_string ) }}"
+
     - name: assign hosts to specific facts variable
       set_fact: {"{{ cce_provisioning_inventory_hosts_var }}":"{{ get_inventory_hosts | join( cce_provisioning_inventory_hosts_join_string ) }}"}
