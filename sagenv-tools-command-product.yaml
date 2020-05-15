@@ -1,16 +1,64 @@
 ---
 
-##start / stop any process...
-## params:
-## - inventory_groupnames
-## - product_command: start, stop
-## - product_name: one of the wM product name
-## - product_instance_name: instance name
+################################################################
+## SPM command task
+################################################################
 
-- hosts: "{{ inventory_groupnames }}"
+- import_playbook: sagenv-tools-command.yaml
+  vars:
+    product_name: "{{ product_name }}"
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    product_command: stop
+  tags:
+    - cmd-stop
+    - cmd-restart
+    - force-svc-start
+
+- import_playbook: sagenv-tools-command.yaml
+  vars:
+    product_name: "{{ product_name }}"
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    product_command: start
+  tags:
+    - cmd-start
+    - cmd-restart
+
+- import_playbook: sagenv-tools-command-systemd.yaml
+  vars:
+    product_name: "{{ product_name }}"
+    product_version_full: "{{ product_version_full }}"
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    product_command: stop
+  tags:
+    - svc-stop
+    - svc-restart
+
+- import_playbook: sagenv-tools-command-systemd.yaml
+  vars:
+    product_name: "{{ product_name }}"
+    product_version_full: "{{ product_version_full }}"
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    product_command: start
+  tags:
+    - svc-start
+    - svc-restart
+    - force-svc-start
+
+#check ports from commandcentral
+- hosts: commandcentral
   become: true
   become_user: "{{ webmethods_user }}"
-  roles:
-    - role: command-webmethods
+  tasks:
+    - import_role: 
+        name: check-remote-ports
+      vars:
+        inventory_pattern: "{{ inventory_groupnames }}"
+        inventory_hosts_property: "{{ checkport_inventory_hosts_property | default('ansible_host') }}"
+        validation_ports: "{{ checkport_validation_ports }}"
+        validation_ports_timeout: "{{ checkport_validation_timeout }}"
   tags:
-    - command
+    - svc-start
+    - svc-restart
+    - force-svc-start
+    - cmd-start
+    - cmd-restart

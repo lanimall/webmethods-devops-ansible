@@ -11,5 +11,3 @@
   become: true
   roles:
     - role: service-webmethods
-  tags:
-    - command

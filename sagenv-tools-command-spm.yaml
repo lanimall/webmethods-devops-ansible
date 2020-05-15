@@ -1,0 +1,15 @@
+---
+
+################################################################
+## SPM command task
+################################################################
+
+- import_playbook: sagenv-tools-command-product.yaml
+  vars:
+    product_name: spm
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    checkport_inventory_hosts_property: "{{ checkport_inventory_hosts_property }}"
+    checkport_validation_ports:
+      - 8092
+      - 8093
+    checkport_validation_timeout: 60
