@@ -1,0 +1,14 @@
+---
+
+################################################################
+## SPM command task
+################################################################
+
+- import_playbook: sagenv-tools-command-product.yaml
+  vars:
+    product_name: integrationserver
+    inventory_groupnames: "{{ inventory_groupnames }}"
+    checkport_inventory_hosts_property: "{{ checkport_inventory_hosts_property | default('ansible_host') }}"
+    checkport_validation_ports:
+      - 5555
+    checkport_validation_timeout: 300
