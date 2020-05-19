@@ -6,10 +6,10 @@
 
 - import_playbook: sagenv-tools-command-product.yaml
   vars:
-    product_name: integrationserver
-    product_instance_name: "{{ product_instance_name | default('default') }}"
+    product_name: universalmessaging
+    product_instance_name: "{{ product_instance_name | default('umserver') }}"
     inventory_groupnames: "{{ inventory_groupnames }}"
     checkport_inventory_hosts_property: "{{ checkport_inventory_hosts_property | default('ansible_host') }}"
     checkport_validation_ports:
-      - 5555
-    checkport_validation_timeout: 300
+      - 9000
+    checkport_validation_timeout: 60
