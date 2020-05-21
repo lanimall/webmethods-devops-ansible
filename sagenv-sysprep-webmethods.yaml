@@ -44,6 +44,16 @@
         groupid: "{{ webmethods_groupid }}"
         authorized_sshkey_path: "/tmp/created_user_ssh_public_key_*"
     - role: prepare-wminstall
+  tasks:
+    - name: Add command central DNS into /etc/hosts to make sure it can connect back to it using aliases
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item }}$'
+        line: "{{ hostvars[item]['ip'] }} {{ hostvars[item]['hostname'] }} {{ hostvars[item]['fqdn'] }} {{ item }}"
+        state: present
+      when: hostvars[item]['ip'] is defined and hostvars[item]['hostname'] is defined and hostvars[item]['fqdn'] is defined
+      with_items:
+        - "{{ groups['commandcentral'] }}"
   tags:
     - sysprep
     - sysprep_webmethods

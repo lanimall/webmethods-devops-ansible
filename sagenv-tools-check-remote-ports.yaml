@@ -38,7 +38,7 @@
         name: check-remote-ports
       vars:
         inventory_pattern: "universalmessaging,commandcentral,abe"
-        inventory_hosts_property: "dns_internal"
+        inventory_hosts_property: "fqdn"
         validation_ports_delay: 0
         validation_ports_timeout: 10
         validation_ports:
