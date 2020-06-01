@@ -21,7 +21,7 @@
 
 # - hosts: localhost
 #   vars:
-#     hostnameprefix: "owcpsagenv"
+#     hostnameprefix: ""
 #   tasks:
 #     - name: test jinja capabilities
 #       debug: msg={{ hostnameprefix }}-{{ "%03d" | format(ansible_default_ipv4.address.split(".")[2]|int) }}-{{ "%03d" | format(ansible_default_ipv4.address.split(".")[3]|int) }}

@@ -59,14 +59,14 @@
             force_create: false
             service_user: "{{ webmethods_user }}"
           when: cce_provisioning_postinstall_service_setup|bool
-        - import_role: 
-            name: service-webmethods
-          vars:
-            product_command: "update"
-            product_name: "{{ cce_provisioning_installed_product_names }}"
-            product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
-            service_env: "{{ cce_provisioning_installed_product_envs_by_name }}"
-          when: cce_provisioning_postinstall_service_setup|bool
+        # - import_role: 
+        #     name: service-webmethods
+        #   vars:
+        #     product_command: "update"
+        #     product_name: "{{ cce_provisioning_installed_product_names }}"
+        #     product_instance_name: "{{ cce_provisioning_installed_product_instance_names }}"
+        #     service_env: "{{ cce_provisioning_installed_product_envs_by_name }}"
+        #   when: cce_provisioning_postinstall_service_setup|bool
         - import_role: 
             name: command-webmethods
           vars:
