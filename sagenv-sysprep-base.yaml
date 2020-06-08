@@ -26,11 +26,19 @@
 - hosts: "{{ inventory_groupnames }}"
   become: true
   tasks:
-    - import_role: 
+    - import_role:
         name: manage-packages
-    - import_role: 
+    - name: make sure firewalld is started
+      service:
+        name: firewalld
+        state: started
+    - import_role:
         name: update-firewall
-    - import_role: 
+    - import_role:
+        name: update-dnsresolver-options
+    - import_role:
+        name: setup-dnsmasq
+    - import_role:
         name: update-os
       vars:
         allow_reboot: true

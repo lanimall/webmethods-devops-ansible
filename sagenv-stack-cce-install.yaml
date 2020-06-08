@@ -31,20 +31,19 @@
         ## this is to make sure we gather the facts again as the user {{ cce_owner }} in order to get a valid {{ ansible_env.HOME }}
         - setup:
           tags:
-            - sysprep
-            - install
+            - always
         - name: set facts
           set_fact:
             install_cce: false
           tags:
-            - sysprep
+            - always
         - import_role: 
             name: create-known-hosts
           vars:
             ssh_known_hosts_dir: "{{ ansible_env.HOME }}/.ssh"
             ssh_known_hosts_file: known_hosts
           tags:
-            - sysprep
+            - always
         - import_role: 
             name: install-cce
           tags:
