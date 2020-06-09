@@ -20,7 +20,7 @@
   tags:
     - always
 
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   tasks:
     - name: Print the params for the webMethods post install tasks
@@ -92,7 +92,7 @@
     - postinstall
 
 #check ports
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   become_user: "{{ cce_owner }}"
   tasks:

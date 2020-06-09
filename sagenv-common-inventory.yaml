@@ -10,7 +10,7 @@
 ### cce_provisioning_inventory_hosts_join_string (type: string - the join string to use when concatenating the hosts into a single string)
 ### cce_provisioning_inventory_hosts_var (type: string - the variable to save the inventory hosts into)
 
-##construct the um urls from the inventory
+##construct some urls from the inventory
 - hosts: "{{ cce_provisioning_inventory_inventory_scope }}"
   become: true
   become_user: "{{ webmethods_user }}"

@@ -5,11 +5,11 @@
   tasks:
     - name: Include vars
       include_vars:
-        file: "./vars/base_command_central.yaml"
+        file: "{{ cce_provisioning_include_file | default('./vars/base_command_central.yaml') }}"
   tags:
     - always
     
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   tasks:
     - name: Root tasks
       block:

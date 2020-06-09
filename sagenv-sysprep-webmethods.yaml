@@ -10,7 +10,7 @@
     - always
 
 ## create the wM user with the right SSH key on command central
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   tasks:
     - import_role: 

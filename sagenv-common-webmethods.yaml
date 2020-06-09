@@ -1,6 +1,7 @@
 ---
 
 ### minimum params:
+### cce_provisioning_command_central_hosts (the host(s) where command central is - defaults to "commandcentral")
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
 ### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 
@@ -18,7 +19,7 @@
   tags:
     - always
     
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   tasks:
     - name: Provisionning {{ cce_provisioning_template }}
@@ -46,7 +47,7 @@
         - always
 
 #install stack
-- hosts: commandcentral
+- hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   become_user: "{{ cce_owner }}"
   tasks:
