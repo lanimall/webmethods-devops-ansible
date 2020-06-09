@@ -1,11 +1,6 @@
 ---
 
-- name: Load vars
-  hosts: "*"
-  tasks:
-    - name: Include vars
-      include_vars:
-        file: "{{ cce_provisioning_include_file | default('./vars/base_command_central.yaml') }}"
+- import_playbook: sagenv-common-webmethods-load-vars.yaml
   tags:
     - always
     
@@ -105,7 +100,7 @@
           ignore_errors: yes
           tags:
             - configure
-            - configure-repo-products
+            - configure-sagrepo-products
         - import_role:
             name: configure-cce
           vars:
@@ -120,7 +115,7 @@
           ignore_errors: yes
           tags:
             - configure
-            - configure-repo-products
+            - configure-sagrepo-products
         - import_role:
             name: configure-cce
           vars:
@@ -135,7 +130,7 @@
           ignore_errors: yes
           tags:
             - configure
-            - configure-repo-products
+            - configure-sagrepo-products
         - import_role:
             name: configure-cce
           vars:
@@ -146,7 +141,7 @@
           ignore_errors: yes
           tags:
             - configure
-            - configure-repo-fixes
+            - configure-sagrepo-products
         - import_role: 
             name: configure-cce
           vars:

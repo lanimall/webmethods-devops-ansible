@@ -1,22 +1,18 @@
 ---
 
-- name: Load vars
-  hosts: "*"
-  tasks:
-    - name: Include vars
-      include_vars:
-        file: "{{ cce_provisioning_include_file | default('./vars/base_command_central.yaml') }}"
+- import_playbook: sagenv-common-webmethods-load-vars.yaml
   tags:
     - always
-    
+
 - hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   tasks:
     - name: Root tasks
       block:
         - import_role: 
             name: prepare-cce-provisoning
-          tags:
-            - sync-cce-provisoning
+          vars:
+            cce_prep_type: "code"
+            cce_copy_content: true
         - import_role: 
             name: create-known-hosts
           vars:

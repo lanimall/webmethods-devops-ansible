@@ -11,12 +11,7 @@
 ### cce_provisioning_validation_ports (type: list)
 ### cce_provisioning_validation_ports_timeout (type: number)
 
-- name: Load vars
-  hosts: "*"
-  tasks:
-    - name: Include vars
-      include_vars:
-        file: "./vars/base_command_central.yaml"
+- import_playbook: sagenv-common-webmethods-load-vars.yaml
   tags:
     - always
 

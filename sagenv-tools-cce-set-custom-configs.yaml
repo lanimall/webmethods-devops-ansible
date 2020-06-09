@@ -1,0 +1,10 @@
+---
+
+- hosts: localhost
+  tasks:
+    - name: Copy param file to global command central var
+      copy:
+        src: "{{ cce_provisioning_custom_config_path }}"
+        dest: "~/.custom_command_central.yaml"
+        mode: "644"
+        remote_src: no

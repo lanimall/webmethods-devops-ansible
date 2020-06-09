@@ -1,0 +1,28 @@
+---
+
+### minimum params:
+### cce_provisioning_command_central_hosts (the host(s) where command central is - defaults to "commandcentral")
+### include_var_files (optional - type: array - default to [] - a list of path for variable files to load)
+
+- name: Load vars
+  hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
+  vars:
+    default_var_files:
+      - "./vars/base_command_central.yaml"
+      - "~/.custom_command_central.yaml"
+  tasks:
+    - name: Build a list of all the files to load.
+      set_fact:
+        all_var_files: "{{ default_var_files + (include_var_files | default([]) )  }}"
+
+    - name: Print the var files to include
+      debug:
+        msg: "Var file to load in order: {{ all_var_files | join(',') }}"
+
+    - name: Include vars
+      include_vars:
+        file: "{{ item }}"
+      with_fileglob: "{{ all_var_files }}"
+      ignore_errors: yes
+  tags:
+    - always

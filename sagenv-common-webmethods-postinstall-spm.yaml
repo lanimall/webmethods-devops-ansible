@@ -1,14 +1,5 @@
 ---
 
-- name: Load vars
-  hosts: "*"
-  tasks:
-    - name: Include vars
-      include_vars:
-        file: "./vars/base_command_central.yaml"
-  tags:
-    - always
-
 - import_playbook: sagenv-common-webmethods-postinstall.yaml
   vars:
     cce_provisioning_installed_product_names: spm

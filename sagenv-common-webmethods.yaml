@@ -10,12 +10,7 @@
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
 ### cce_provisioning_template_params_secure (type: dictionary - the dynamic secure params to apply with the CCE template - the main difference is that these params will not be printed to log outputs)
 
-- name: Load vars
-  hosts: "*"
-  tasks:
-    - name: Include vars
-      include_vars:
-        file: "./vars/base_command_central.yaml"
+- import_playbook: sagenv-common-webmethods-load-vars.yaml
   tags:
     - always
     
