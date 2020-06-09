@@ -1,0 +1,10 @@
+---
+
+- hosts: localhost
+  tasks:
+    - name: Copy param file to custom var location
+      copy:
+        src: "{{ custom_config_path }}"
+        dest: "~/.custom_sysprep.yaml"
+        mode: "644"
+        remote_src: no
