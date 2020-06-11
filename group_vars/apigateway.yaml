@@ -1,7 +1,7 @@
 ---
 
 ## OS settings
-sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apigateway }} + {{ sys_open_ports_terracotta }} + {{ sys_open_ports_internaldatastore }}"
+sys_open_ports: "{{ sys_open_ports_spm }} + {{ sys_open_ports_apigateway }} + {{ sys_open_ports_apigatewaykibana }} + {{ sys_open_ports_terracotta }} + {{ sys_open_ports_internaldatastore }}"
 
 limits_user: "{{ webmethods_user }}"
 limits_openfiles: "250000"

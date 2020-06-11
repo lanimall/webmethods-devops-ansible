@@ -1,0 +1,36 @@
+---
+
+### minimum params:
+### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the products)
+
+################################################################
+## Product install
+################################################################
+
+- hosts: "{{ cce_provisioning_inventory_hosts_pattern }}"
+  become: true
+  tasks:
+    - import_role: 
+        name: provision-with-installer
+      vars:
+        provision_action: setupfiles
+      tags:
+        - sysprep-install
+
+    - import_role: 
+        name: provision-with-installer
+      vars:
+        provision_action: runinstall
+      become: true
+      become_user: "{{ webmethods_user }}"
+      tags:
+        - install
+
+################################################################
+## SPM bootstrapping
+################################################################
+
+- import_playbook: sagenv-common-spm-bootstrap-aliasmapping.yaml
+  tags:
+    - install
+    - install-spm
