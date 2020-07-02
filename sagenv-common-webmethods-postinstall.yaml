@@ -5,7 +5,6 @@
 ### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
 ### cce_provisioning_installed_product_names (type: list - the products installed by the template so we can create the right services etc...)
 ### cce_provisioning_installed_product_envs_by_name (type: dictionary)
-### cce_provisioning_postinstall_webmethods (type: boolean)
 ### cce_provisioning_postinstall_service_setup (type: boolean)
 ### cce_provisioning_postinstall_reboot (type: boolean)
 ### cce_provisioning_validation_ports (type: list)
@@ -27,7 +26,6 @@
         - "cce_provisioning_installed_product_names = {{ cce_provisioning_installed_product_names | default('undefined') }}"
         - "cce_provisioning_installed_product_instance_names = {{ cce_provisioning_installed_product_instance_names | default('undefined') }}"
         - "cce_provisioning_installed_product_envs_by_name = {{ cce_provisioning_installed_product_envs_by_name | default('undefined') }}"
-        - "cce_provisioning_postinstall_webmethods = {{ cce_provisioning_postinstall_webmethods | default('undefined') }}"
         - "cce_provisioning_postinstall_service_setup = {{ cce_provisioning_postinstall_service_setup | default('undefined') }}"
         - "cce_provisioning_postinstall_reboot = {{ cce_provisioning_postinstall_reboot | default('undefined') }}"
         - "cce_provisioning_validation_ports = {{ cce_provisioning_validation_ports | default('undefined') }}"
@@ -40,11 +38,6 @@
   tasks:
     - name: Root tasks
       block:
-        - import_role: 
-            name: post-install-webmethods
-          vars:
-            postinstall_do_reboot: false
-          when: cce_provisioning_postinstall_webmethods|bool
         - import_role: 
             name: service-webmethods
           vars:

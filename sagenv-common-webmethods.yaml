@@ -4,11 +4,11 @@
 ### cce_provisioning_command_central_hosts (the host(s) where command central is - defaults to "commandcentral")
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the CCE template)
 ### cce_provisioning_inventory_hosts_property (type: string - the property to lookup to find the actual network host of an alias)
-
 ### cce_provisioning_template (type: string - the name or path to the CCE template)
 ### cce_provisioning_properties (type: string - the name of the properties file to load with the CCE template)
 ### cce_provisioning_template_params (type: dictionary - the dynamic params to apply with the CCE template)
 ### cce_provisioning_template_params_secure (type: dictionary - the dynamic secure params to apply with the CCE template - the main difference is that these params will not be printed to log outputs)
+### cce_provisioning_postinstall_webmethods (type: boolean)
 
 - import_playbook: sagenv-common-webmethods-load-vars.yaml
   tags:
@@ -31,6 +31,7 @@
         - "cce_provisioning_properties = {{ cce_provisioning_properties | default('undefined') }}"
         - "cce_provisioning_template_params = {{ cce_provisioning_template_params | default('undefined') }}"
         - "cce_provisioning_template_params_secure = ******************"
+        - "cce_provisioning_postinstall_webmethods = {{ cce_provisioning_postinstall_webmethods | default('undefined') }}"
       tags:
         - always
     - import_role: 
@@ -61,3 +62,15 @@
         template_params_secure: "{{ cce_provisioning_template_params_secure }}"
   tags:
     - install
+
+#wM post install script to run as root
+- hosts: "{{ cce_provisioning_inventory_hosts_pattern }}"
+  become: true
+  tasks:
+    - import_role: 
+        name: post-install-webmethods
+      vars:
+        postinstall_do_reboot: false
+      when: cce_provisioning_postinstall_webmethods|bool
+  tags:
+    - postinstall
