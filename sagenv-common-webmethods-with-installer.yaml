@@ -4,7 +4,7 @@
 ### cce_provisioning_inventory_hosts_pattern (type: string - the target ansible group to install the products)
 
 ################################################################
-## Product install
+## Product install using installer
 ################################################################
 
 - hosts: "{{ cce_provisioning_inventory_hosts_pattern }}"
@@ -27,10 +27,13 @@
         - install
 
 ################################################################
-## SPM bootstrapping
+## After Install Run-As-Root
 ################################################################
 
-- import_playbook: sagenv-common-spm-bootstrap-aliasmapping.yaml
+- import_playbook: sagenv-common-webmethods-postinstall.yaml
+  vars:
+    cce_provisioning_postinstall_webmethods: true
+    cce_provisioning_postinstall_service_setup: false
+    cce_provisioning_postinstall_reboot: false
   tags:
-    - install
-    - install-spm
+    - postinstall

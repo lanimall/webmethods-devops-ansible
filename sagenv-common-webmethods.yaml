@@ -42,7 +42,10 @@
       tags:
         - always
 
-#install stack
+################################################################
+## Install the stack using CCE
+################################################################
+
 - hosts: "{{ cce_provisioning_command_central_hosts | default('commandcentral') }}"
   become: true
   become_user: "{{ cce_owner }}"
@@ -63,14 +66,14 @@
   tags:
     - install
 
-#wM post install script to run as root
-- hosts: "{{ cce_provisioning_inventory_hosts_pattern }}"
-  become: true
-  tasks:
-    - import_role: 
-        name: post-install-webmethods
-      vars:
-        postinstall_do_reboot: false
-      when: cce_provisioning_postinstall_webmethods|bool
+################################################################
+## After Install Run-As-Root
+################################################################
+
+- import_playbook: sagenv-common-webmethods-postinstall.yaml
+  vars:
+    cce_provisioning_postinstall_webmethods: true
+    cce_provisioning_postinstall_service_setup: false
+    cce_provisioning_postinstall_reboot: false
   tags:
     - postinstall
