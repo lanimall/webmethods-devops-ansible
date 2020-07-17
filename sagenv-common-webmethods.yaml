@@ -65,15 +65,3 @@
         template_params_secure: "{{ cce_provisioning_template_params_secure }}"
   tags:
     - install
-
-################################################################
-## After Install Run-As-Root
-################################################################
-
-- import_playbook: sagenv-common-webmethods-postinstall.yaml
-  vars:
-    cce_provisioning_postinstall_webmethods: true
-    cce_provisioning_postinstall_service_setup: false
-    cce_provisioning_postinstall_reboot: false
-  tags:
-    - postinstall
