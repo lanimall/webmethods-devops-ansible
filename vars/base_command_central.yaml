@@ -1,3 +1,6 @@
+##################
+### THESE VARIABLES CAN AND SHOULD BE OVERWRITTEN IN CUSTOM FILE AT ~/.custom_command_central.yaml
+##################
 
 ## versions 10.3 -- used to get the right CCE installer
 # cce_version: 10.3
@@ -6,7 +9,9 @@
 
 ## versions 10.5 -- used mostly for the CC install to get the right CCE installer
 cce_version: 10.5
-cce_version_fix: fix4
+## cce_version_fix is fixN or latest
+cce_version_fix: latest
+## cce_platform = lnxamd64, etc...
 cce_platform: lnxamd64
 
 cce_jvm_memory_min: "1024"

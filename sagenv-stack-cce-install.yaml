@@ -1,6 +1,8 @@
 ---
 
 - import_playbook: sagenv-common-webmethods-load-vars.yaml
+  vars:
+    cce_provisioning_command_central_hosts: localhost:commandcentral
   tags:
     - always
 
