@@ -1,3 +1,7 @@
+##################
+### THESE VARIABLES CAN AND SHOULD BE OVERWRITTEN IN CUSTOM FILE AT ~/.custom_sysprep.yaml
+##################
+
 webmethods_install_dir: /opt/softwareag
 webmethods_user: saguser
 webmethods_group: saguser
